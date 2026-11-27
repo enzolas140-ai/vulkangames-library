@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131c">
+<title>VulkanGames Library</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e15;--panel:#151a26;--line:#293246;--muted:#a7b0c2;--accent:#ff6a2a;--text:#f4f6fb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#283047 0,#0b0e15 55%);color:var(--text);font:16px/1.5 system-ui,Segoe UI,sans-serif;min-height:100vh}
+header{padding:30px max(20px,calc((100% - 1120px)/2));border-bottom:1px solid var(--line);background:#0b0e15cc}
+.brand{font-weight:900;letter-spacing:.04em;font-size:clamp(25px,5vw,42px)}.brand span{color:var(--accent)}header p{margin:5px 0 0;color:var(--muted)}
+main{max-width:1120px;margin:28px auto;padding:0 20px}.hero{padding:26px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#1c2536,#141925);display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:clamp(22px,4vw,32px);margin:0 0 7px}.muted{color:var(--muted)}button,.btn,select,input{font:inherit}button,.btn{border:0;border-radius:10px;padding:11px 16px;background:var(--accent);color:#160d09;font-weight:800;cursor:pointer}button.secondary,.btn.secondary{background:#293246;color:var(--text);border:1px solid #3b4861}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.toolbar input,.toolbar select{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:11px 13px;border-radius:10px;min-width:160px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}.game{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.cover{height:125px;background:linear-gradient(135deg,#303b53,#171d2a);display:grid;place-items:center;font-size:38px}.gamebody{padding:14px}.game h3{margin:0 0 5px}.tag{font-size:12px;color:#ffb18e;text-transform:uppercase;letter-spacing:.08em}.game p{color:var(--muted);font-size:14px;min-height:40px}
+#playerWrap{display:none;margin-top:24px;background:#05070b;border:1px solid var(--line);border-radius:16px;overflow:hidden}#playerHead{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}#game{width:100%;min-height:420px}#game iframe{border:0}
+.notice{margin-top:20px;padding:14px 16px;border:1px solid #57412d;background:#261c15;border-radius:12px;color:#e8c6a8;font-size:14px}
+footer{max-width:1120px;margin:35px auto;padding:0 20px 30px;color:var(--muted);font-size:13px}
+@media(max-width:600px){.hero{padding:19px}#game{min-height:300px}}
+</style>
+</head>
+<body>
+<header><div class="brand">VULKAN<span>GAMES</span> <small style="font-size:14px;color:#a7b0c2">LIBRARY</small></div><p>Sua coleção retrô, em um só lugar.</p></header>
+<main>
+<section class="hero"><div><h1>Biblioteca de jogos</h1><div class="muted">Abra um jogo do catálogo ou carregue um arquivo do seu dispositivo.</div></div><label class="btn" for="romFile">＋ Abrir arquivo</label><input id="romFile" type="file" hidden accept=".gb,.gbc,.gba,.nes,.sfc,.smc,.md,.gen,.bin,.cue,.chd,.pbp,.iso,.nds,.zip"></section>
+<div class="toolbar"><input id="search" placeholder="Buscar jogo…"><select id="system"><option value="">Todos os sistemas</option><option value="gb">Game Boy</option><option value="gbc">Game Boy Color</option><option value="gba">Game Boy Advance</option><option value="nes">NES</option><option value="snes">SNES</option><option value="megadrive">Mega Drive</option><option value="psx">PlayStation</option><option value="nds">Nintendo DS</option></select><button class="secondary" id="refresh">Atualizar catálogo</button></div>
+<div id="status" class="muted" role="status">Carregando catálogo…</div><section id="games" class="grid"></section>
+<section id="playerWrap"><div id="playerHead"><strong id="playing">Emulador</strong><button class="secondary" id="close">Fechar jogo</button></div><div id="game"></div></section>
+<div class="notice"><strong>Importante:</strong> carregue somente jogos e arquivos de BIOS que você tenha direito de usar. Alguns sistemas exigem BIOS; o site não fornece firmware proprietário. A compatibilidade de ZIP e formatos de PS1 depende do núcleo do emulador.</div>
+</main><footer>VulkanGames Library · Emulação via EmulatorJS · Jogos e BIOS não incluídos.</footer>
+<script>
+const CORE={gb:'gambatte',gbc:'gambatte',gba:'mgba',nes:'fceumm',snes:'snes9x',megadrive:'genesis_plus_gx',psx:'pcsx_rearmed',nds:'melonds'};
+const LABEL={gb:'Game Boy',gbc:'Game Boy Color',gba:'Game Boy Advance',nes:'NES',snes:'SNES',megadrive:'Mega Drive',psx:'PlayStation',nds:'Nintendo DS'};
+let games=[], selectedFile=null;
+const $=id=>document.getElementById(id);
+function systemFrom(name){const e=name.toLowerCase().split('.').pop();return ({gb:'gb',gbc:'gbc',gba:'gba',nes:'nes',sfc:'snes',smc:'snes',md:'megadrive',gen:'megadrive',cue:'psx',chd:'psx',pbp:'psx',iso:'psx',bin:'psx',nds:'nds',zip:''})[e]||''}
+function render(){const q=$('search').value.toLowerCase(),s=$('system').value;const list=games.filter(g=>(g.title||'').toLowerCase().includes(q)&&(!s||g.system===s));$('games').innerHTML='';$('status').textContent=list.length?list.length+' jogo(s) no catálogo.':'Nenhum jogo encontrado. Adicione jogos autorizados ao catalog.json ou abra um arquivo.';for(const g of list){const card=document.createElement('article');card.className='game';const cover=document.createElement('div');cover.className='cover';if(g.cover){const img=document.createElement('img');img.src=g.cover;img.alt='';img.style='width:100%;height:125px;object-fit:cover';cover.append(img)}else cover.textContent='🎮';const body=document.createElement('div');body.className='gamebody';const tag=document.createElement('div');tag.className='tag';tag.textContent=LABEL[g.system]||g.system;const h=document.createElement('h3');h.textContent=g.title||'Jogo';const p=document.createElement('p');p.textContent=g.description||'Jogo da biblioteca';const b=document.createElement('button');b.textContent='Jogar';b.onclick=()=>launch(g.url,g.system,g.title);body.append(tag,h,p,b);card.append(cover,body);$('games').append(card)}}
+async function loadCatalog(){try{const r=await fetch('./catalog.json?ts='+Date.now());if(!r.ok)throw Error('catalog.json não encontrado');const data=await r.json();games=Array.isArray(data)?data:(data.games||[]);render()}catch(e){$('status').textContent='Não foi possível carregar catalog.json. '+e.message}}
+function launch(url,system,title,file){if(!CORE[system]){alert('Selecione um sistema compatível. Para ZIP, extraia o conteúdo e escolha a ROM principal.');return}const wrap=$('playerWrap');wrap.style.display='block';$('playing').textContent=title||'Jogo';$('game').innerHTML='';$('game').scrollIntoView({behavior:'smooth',block:'start'});window.EJS_player='#game';window.EJS_core=CORE[system];window.EJS_gameUrl=file||url;window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';window.EJS_startOnLoaded=true;const script=document.createElement('script');script.src=window.EJS_pathtodata+'loader.js';script.onerror=()=>alert('Falha ao carregar o emulador. Verifique a conexão e o formato do jogo.');document.body.append(script)}
+$('romFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;let s=systemFrom(f.name);if(!s){s=prompt('Não detectei o sistema. Digite: gb, gbc, gba, nes, snes, megadrive, psx ou nds')||''}if(!CORE[s]){alert('Sistema não reconhecido.');return}const u=URL.createObjectURL(f);launch(u,s,f.name,f)});
+$('search').addEventListener('input',render);$('system').addEventListener('change',render);$('refresh').onclick=loadCatalog;$('close').onclick=()=>{$('playerWrap').style.display='none';$('game').innerHTML='';location.reload()};
+loadCatalog();
+</script>
+</body></html>
