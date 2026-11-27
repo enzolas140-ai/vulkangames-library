@@ -44,7 +44,7 @@ test('BIOS selection accepts multiple files and ZIP packs', () => {
 });
 
 test('emulator shutdown and browser diagnostics are wired', () => {
-  assert.match(inline[1], /EJS_terminate/);
+  assert.match(inline[1], /EJS_terminate/);\n  assert.match(inline[1], /window\\.EJS_gameID=stableGameId\\(system,title\\)/);
   assert.match(inline[1], /function diagnostics\(\)/);
   assert.match(inline[1], /getGamepads/);
 });
