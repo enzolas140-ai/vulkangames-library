@@ -1,25 +1,48 @@
 # VulkanGames Library
 
-Biblioteca web de jogos retrô para arquivos que você possui ou tem autorização para usar.
+Biblioteca web de emulação retrô no navegador, com EmulatorJS. Use somente ROMs e firmware/BIOS que você possui ou tem autorização para utilizar.
 
-## Como usar
-1. Abra `index.html` localmente ou publique o repositório com GitHub Pages.
-2. Use **Abrir arquivo** para selecionar uma ROM do seu dispositivo.
-3. Escolha o sistema detectado ou ajuste manualmente e pressione **Jogar**.
-4. Para jogos de PS1, selecione o arquivo de disco compatível (normalmente .cue, .chd, .pbp ou .iso; suporte depende do núcleo).
+## Publicar no GitHub Pages
+1. Abra **Settings → Pages** no repositório.
+2. Em **Build and deployment → Source**, selecione **GitHub Actions**.
+3. O workflow `.github/workflows/pages.yml` publica automaticamente a raiz do repositório quando houver push na branch `main`.
+4. A URL esperada é https://enzolas140-ai.github.io/vulkangames-library/.
 
-## Catálogo remoto
-Edite `catalog.json` para adicionar jogos homebrew, de domínio público ou distribuídos com licença/permissão. Cada entrada pode conter:
-- `title`: nome exibido
-- `system`: gb, gbc, gba, nes, snes, megadrive, psx ou nds
-- `url`: URL direta do arquivo do jogo, com hospedagem que permita CORS
-- `cover`: URL opcional da capa
-- `description`: descrição curta
+## Recursos da interface
+- Catálogo editável em `catalog.json` com título, sistema, URL, capa e descrição.
+- Pesquisa e filtro por sistema.
+- Seleção de ROM local sem enviar o arquivo ao servidor.
+- Extração de ZIP no navegador (JSZip) para ROMs de arquivo único.
+- Campo para BIOS local, mantida apenas na sessão atual.
+- EmulatorJS fornece menu de áudio/volume, tela cheia, mapeamento de teclado/controle, controles virtuais e ferramentas de save/load state, conforme o núcleo e o navegador.
 
-**Não coloque ROMs comerciais nem BIOS proprietárias sem autorização.** GitHub não é adequado para armazenar ROMs grandes; mantenha aqui o catálogo e use hospedagem apropriada para arquivos autorizados. Arquivos escolhidos no botão de upload são carregados localmente no navegador e não são enviados ao GitHub.
+## Sistemas configurados
+GB, GBC, GBA, NES, SNES, Mega Drive, PlayStation e Nintendo DS. A presença na lista não significa que todos os formatos e núcleos foram testados em todos os navegadores/dispositivos.
 
-## BIOS e formatos
-Alguns sistemas funcionam sem BIOS; outros podem exigir firmware/BIOS compatível. O site não distribui BIOS. A compatibilidade de ZIP e formatos de disco varia por núcleo do emulador. Para PS1, prefira CHD ou CUE/BIN corretamente organizados.
+## Formatos e limitações
+- ZIP: extração local de arquivos reconhecidos; arquivos multi-track e discos PS1 podem exigir organização especial.
+- PS1: prefira CHD ou CUE/BIN bem formado. A compatibilidade depende do núcleo e da BIOS correta.
+- BIOS: alguns sistemas funcionam sem BIOS; outros exigem firmware específico. O site não distribui BIOS.
+- Áudio pode exigir um clique/toque inicial por políticas de autoplay do navegador.
+- Controles USB/Bluetooth dependem de o sistema operacional e navegador reconhecerem o gamepad. O mapeamento é feito no menu do EmulatorJS.
+- Salvamentos e save states usam os recursos internos do EmulatorJS; comportamento e persistência variam conforme navegador, armazenamento e núcleo. Exporte backups importantes.
 
-## Publicar
-No GitHub: **Settings → Pages → Deploy from a branch → main → / (root)**.
+## Adicionar jogos ao catálogo
+Edite `catalog.json`. Exemplo:
+```json
+{
+  "games": [
+    {
+      "title": "Meu jogo homebrew",
+      "system": "gba",
+      "url": "https://exemplo.org/meu-jogo.gba",
+      "cover": "https://exemplo.org/capa.png",
+      "description": "Jogo homebrew autorizado"
+    }
+  ]
+}
+```
+A hospedagem dos jogos precisa permitir acesso público e CORS quando necessário. Não armazene ROMs comerciais nem BIOS proprietárias sem autorização. GitHub não é indicado para arquivos grandes; use hospedagem adequada para conteúdo autorizado.
+
+## Testes pendentes
+A sintaxe do JavaScript da página foi verificada. Ainda é necessário testar execução real com ROMs homebrew/de teste em navegadores e controles físicos: áudio, mapeamento, saves, BIOS e formatos de disco não foram certificados apenas por análise estática.
