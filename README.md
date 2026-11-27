@@ -4,30 +4,43 @@ Biblioteca web de emulação retrô no navegador com EmulatorJS. Use somente ROM
 
 ## Publicação
 1. Em **Settings → Pages**, escolha **GitHub Actions** como fonte.
-2. O workflow `.github/workflows/pages.yml` executa os testes automatizados e publica a raiz do repositório na branch `main`.
+2. O workflow `.github/workflows/pages.yml` executa testes automatizados antes de publicar a raiz do repositório na branch `main`.
 3. URL esperada: https://enzolas140-ai.github.io/vulkangames-library/.
 
-## Sistemas e identificadores
-A configuração usa os identificadores de sistema documentados pelo EmulatorJS:
-- GB e GBC: `gb` (o mesmo núcleo Gambatte suporta ambos)
-- GBA: `gba`
-- NES: `nes`
-- SNES: `snes`
-- Mega Drive: `segaMD`
-- PlayStation: `psx`
-- Nintendo DS: `nds`
+## Sistemas configurados
+- Game Boy e Game Boy Color: sistema EmulatorJS `gb`, núcleo Gambatte.
+- Game Boy Advance: `gba`, núcleo mGBA.
+- NES: `nes`, núcleo FCEUmm.
+- SNES: `snes`, núcleo Snes9x.
+- Mega Drive: `segaMD`, núcleo Genesis Plus GX.
+- PlayStation: `psx`, padrão PCSX-ReARMed; arquivos CHD selecionam Mednafen PSX HW.
+- Nintendo DS: `nds`, núcleo melonDS.
 
-## Importação
-- ROM individual: selecione o arquivo; quando a extensão não identifica o console, a página pergunta o sistema.
-- ZIP: o arquivo é passado ao descompactador do EmulatorJS, que tem suporte próprio a arquivos compactados.
-- PS1 CUE/BIN: selecione o CUE e todos os arquivos referenciados por ele de uma vez. O site empacota os arquivos mantendo os nomes e caminhos, para o emulador poder resolver as faixas. CHD/PBP/ISO podem ser selecionados individualmente conforme suporte do núcleo.
-- BIOS: selecione um arquivo ou vários arquivos juntos; a seleção múltipla é empacotada em ZIP e mantida localmente nesta sessão. A aceitação de pacotes BIOS depende do núcleo. Nintendo DS com melonDS normalmente precisa do conjunto BIOS7, BIOS9 e firmware; PlayStation normalmente precisa de BIOS compatível. O site não fornece BIOS.
+## Formatos reconhecidos
+- GB/GBC: `.gb`, `.gbc`
+- GBA: `.gba`
+- NES: `.nes`
+- SNES: `.sfc`, `.smc`
+- Mega Drive: `.md`, `.smd`, `.gen`
+- PlayStation: `.cue` com todos os arquivos referenciados selecionados juntos; `.ccd` com o respetivo `.img`; playlists `.m3u`; `.pbp`, `.img`, `.mdf`, `.toc`, `.cbn`; CHD seleciona o núcleo Mednafen PSX HW.
+- Nintendo DS: `.nds`
+- Arquivos `.zip`: são enviados ao descompactador interno do EmulatorJS; informe o sistema quando o nome não terminar em um sufixo reconhecível como `.gba.zip` ou `.psx.zip`.
+
+**Não marquei ISO como formato PS1 garantido:** o núcleo padrão PCSX-ReARMed não lista ISO entre suas extensões documentadas no pacote estável. CHD usa outro núcleo e depende de WebGL 2.
+
+## Importação e BIOS
+- ROMs locais ficam no navegador e não são enviadas ao servidor.
+- Para discos PS1, selecione CUE/CCD/M3U e os arquivos associados juntos; a página cria um ZIP preservando os nomes para o EmulatorJS extrair.
+- BIOS pode ser selecionada individualmente ou em conjunto (o conjunto é empacotado em ZIP). O suporte a pacote depende do núcleo. PlayStation normalmente requer BIOS compatível. melonDS requer BIOS ARM7, BIOS ARM9 e firmware para o modo BIOS.
+- O site não fornece jogos comerciais nem BIOS.
 
 ## Controles, áudio e saves
-O menu do EmulatorJS oferece mapeamento de teclado/gamepad, controles virtuais, volume, tela cheia e funções de save/load quando suportadas pelo núcleo. O navegador e o sistema operacional precisam reconhecer o controle. O áudio pode precisar de uma interação inicial para desbloquear o autoplay. IDs numéricos estáveis por jogo ajudam a separar os dados de salvamento.
+O menu do EmulatorJS oferece mapeamento de teclado/gamepad, controles virtuais, volume, tela cheia e funções de save/load conforme o núcleo. O navegador/sistema operacional deve reconhecer o controle; áudio pode exigir interação inicial para liberar autoplay. IDs numéricos estáveis por jogo separam os dados de salvamento.
 
-## Testes e limitações
-O workflow executa testes automatizados de sintaxe, mapeamento dos oito sistemas, IDs, importação de arquivos, tratamento de CUE/BIN, BIOS e limpeza do emulador. Isso **não** equivale a um teste de jogo real: para certificar inicialização, gráficos, som, controle e salvamento em cada console, ainda é necessário abrir ROMs de teste/homebrew apropriadas em um navegador real. A página também mostra diagnóstico de WebAssembly, WebGL 2, Gamepad API e áudio.
+## Verificação
+O workflow executa testes automatizados de sintaxe, mapeamento dos oito sistemas, IDs numéricos, importação ZIP, conjuntos de disco, BIOS e limpeza do emulador. A página também exibe diagnóstico de WebAssembly, WebGL 2, Gamepad API, áudio e JSZip.
+
+**Limite importante:** testes automatizados de configuração não comprovam que um jogo inicia ou que gráficos, áudio, controles e salvamentos funcionam em hardware real. Para certificar cada console, ainda precisamos executar ROMs homebrew/de teste em navegador real e conferir o resultado. Os arquivos de teste devem ser fornecidos pelo usuário ou ter licença/permissão explícita.
 
 ## Catálogo
 Edite `catalog.json`:
@@ -44,4 +57,4 @@ Edite `catalog.json`:
   ]
 }
 ```
-URLs remotas precisam permitir acesso público e CORS quando necessário. Não hospede ROMs comerciais nem BIOS proprietárias sem autorização. GitHub não é indicado para arquivos grandes.
+URLs remotas precisam permitir acesso público e CORS quando necessário. GitHub não é indicado para armazenar ROMs grandes.
