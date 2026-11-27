@@ -9,8 +9,8 @@
     {
       "title": "Crash Bandicoot (USA)",
       "system": "psx",
-      "url": "https://github.com/enzolas140-ai/vulkangames-library/releases/download/crash-bandicoot-v1/Crash.Bandicoot.RomsBR.chd",
-      "description": "Versão para PlayStation em formato CHD, hospedada no GitHub Releases."
+      "url": "https://vulkangames-roms.enzolas140.workers.dev/ps1/crash-bandicoot.chd",
+      "description": "Crash Bandicoot para PlayStation (USA), em CHD, servido pelo gateway privado do VulkanGames."
     }
   ]
 }
