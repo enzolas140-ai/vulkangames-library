@@ -5,6 +5,12 @@
       "system": "gba",
       "url": "./games/super-mario-advance-4-gba.zip",
       "description": "Aventura clássica de plataforma para Game Boy Advance."
+    },
+    {
+      "title": "Crash Bandicoot (USA)",
+      "system": "psx",
+      "url": "https://drive.google.com/uc?export=download&id=1fwBY5KZFNRoIcVBWyTGyPOh-I-wN-q_V",
+      "description": "Versão para PlayStation. Arquivo hospedado externamente no Google Drive."
     }
   ]
 }
