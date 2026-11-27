@@ -32,7 +32,7 @@ Biblioteca web de emulação retrô no navegador com EmulatorJS. Use somente ROM
 - ROMs locais ficam no navegador e não são enviadas ao servidor.
 - Para discos PS1, selecione CUE/CCD/M3U e os arquivos associados juntos; a página cria um ZIP preservando os nomes para o EmulatorJS extrair.
 - BIOS pode ser selecionada individualmente ou em conjunto (o conjunto é empacotado em ZIP). O suporte a pacote depende do núcleo. PlayStation normalmente requer BIOS compatível. melonDS requer BIOS ARM7, BIOS ARM9 e firmware para o modo BIOS.
-- O site não fornece jogos comerciais nem BIOS.
+- O catálogo só hospeda jogos comerciais quando há autorização explícita para distribuição pública. Os demais jogos e BIOS não são fornecidos e devem ser carregados localmente pelo visitante, conforme os direitos de uso.
 
 ## Controles, áudio e saves
 O menu do EmulatorJS oferece mapeamento de teclado/gamepad, controles virtuais, volume, tela cheia e funções de save/load conforme o núcleo. O navegador/sistema operacional deve reconhecer o controle; áudio pode exigir interação inicial para liberar autoplay. IDs numéricos estáveis por jogo separam os dados de salvamento.

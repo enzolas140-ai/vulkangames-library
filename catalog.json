@@ -1,3 +1,10 @@
 {
-  "games": []
+  "games": [
+    {
+      "title": "Super Mario Advance 4: Super Mario Bros. 3",
+      "system": "gba",
+      "url": "./games/super-mario-advance-4-gba.zip",
+      "description": "Aventura clássica de plataforma para Game Boy Advance."
+    }
+  ]
 }
