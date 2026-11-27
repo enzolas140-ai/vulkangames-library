@@ -32,12 +32,12 @@ test('game IDs are numeric and stable', () => {
 
 test('local archives and multi-file CUE import are supported', () => {
   assert.match(html, /id="romFile"[^>]*multiple/);
-  assert.match(inline[1], /ext\(name\)==='cue'/);
+  assert.match(inline[1], /type==='cue'/);\n  assert.match(inline[1], /\['cue','ccd','m3u'\]\.includes\(ext\(name\)\)/);
   assert.match(inline[1], /generateAsync\(\{type:'blob'\}\)/);
   assert.match(inline[1], /Arquivo referenciado pelo CUE não selecionado/);
 });
 
-test('BIOS selection accepts multiple files and ZIP packs', () => {
+test('PlayStation CHD selects the CHD-capable core', () => {\n  assert.match(inline[1], /format==='chd'\?'mednafen_psx_hw':CORE\[system\]/);\n});\n\ntest('BIOS selection accepts multiple files and ZIP packs', () => {
   assert.match(html, /id="biosFile"[^>]*multiple/);
   assert.match(inline[1], /biosUrl=URL\.createObjectURL\(f\)/);
   assert.match(inline[1], /files\.forEach\(x=>zip\.file\(x\.name,x\)\)/);
