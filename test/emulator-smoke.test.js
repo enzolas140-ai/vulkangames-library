@@ -52,5 +52,5 @@ test('emulator shutdown and browser diagnostics are wired', () => {
   assert.match(inline[1], /EJS_terminate/);
   assert.match(inline[1], /window\.EJS_gameID=stableGameId\(system,title\)/);
   assert.match(inline[1], /function diagnostics\(\)/);
-  assert.match(inline[1], /getGamepads/);
+  assert.match(inline[1], /getGamepads/);\n  assert.match(inline[1], /function scanGamepads\\(\\)/);\n  assert.match(inline[1], /function testAudio\\(\\)/);\n  assert.match(inline[1], /WebGL 2 neste pacote/);
 });
