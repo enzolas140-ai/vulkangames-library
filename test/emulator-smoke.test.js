@@ -38,8 +38,9 @@ test('local archives and multi-file CUE/CCD/M3U import are supported', () => {
   assert.match(inline[1], /Arquivo referenciado pelo/);
 });
 
-test('PlayStation CHD selects the CHD-capable core', () => {
+test('PlayStation CHD selects the CHD-capable core and checks WebGL 2', () => {
   assert.match(inline[1], /format==='chd'\?'mednafen_psx_hw':CORE\[system\]/);
+  assert.match(inline[1], /WebGL 2 neste pacote/);
 });
 
 test('BIOS selection accepts multiple files and ZIP packs', () => {
@@ -52,5 +53,7 @@ test('emulator shutdown and browser diagnostics are wired', () => {
   assert.match(inline[1], /EJS_terminate/);
   assert.match(inline[1], /window\.EJS_gameID=stableGameId\(system,title\)/);
   assert.match(inline[1], /function diagnostics\(\)/);
-  assert.match(inline[1], /getGamepads/);\n  assert.match(inline[1], /function scanGamepads\\(\\)/);\n  assert.match(inline[1], /function testAudio\\(\\)/);\n  assert.match(inline[1], /WebGL 2 neste pacote/);
+  assert.match(inline[1], /function scanGamepads\(\)/);
+  assert.match(inline[1], /function testAudio\(\)/);
+  assert.match(inline[1], /getGamepads/);
 });
