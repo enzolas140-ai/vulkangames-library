@@ -41,7 +41,7 @@ jobs:
           set -euo pipefail
           tmp="$(mktemp -d)"
           git clone --depth 1 --filter=blob:none --sparse --branch wasm https://github.com/TabStationToo/TabStationToo.git "$tmp/source"
-          git -C "$tmp/source" sparse-checkout set pcsx2-wasm/web COPYING.GPLv3 bin/docs/ThirdPartyLicenses.html
+          git -C "$tmp/source" sparse-checkout set pcsx2-wasm/web bin/docs
           rm -rf emulators/ps2
           mkdir -p emulators/ps2/docs
           cp -a "$tmp/source/pcsx2-wasm/web/." emulators/ps2/
