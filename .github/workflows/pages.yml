@@ -68,6 +68,12 @@ jobs:
           git -C /tmp/stellite-gex checkout --detach 95fb079c93bb1e46835e5fa6d807db5d01dd1491
           git -C /tmp/stellite-gex submodule update --init --recursive
 
+      - name: Apply GEX wasm32 memory compatibility patch
+        run: |
+          node scripts/patch-gex-memory32.mjs
+          git -C /tmp/stellite-gex diff --check
+          git -C /tmp/stellite-gex diff -- crates/gex-kmem/src/lib.rs hosts/kernel/build.sh
+
       - name: Install and verify pinned nightly kernel toolchain
         run: |
           set -euxo pipefail
