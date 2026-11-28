@@ -186,6 +186,35 @@ jobs:
           sudo tar -C "$ROOTFS_DIR" -cf "$GITHUB_WORKSPACE/arm64/rootfs/glibc-runtime.tar" .
           ls -lh "$GITHUB_WORKSPACE/arm64/rootfs/glibc-runtime.tar"
 
+      - name: Stage TabStationToo PS2 browser emulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          git clone --depth 1 --filter=blob:none --sparse --branch wasm https://github.com/TabStationToo/TabStationToo.git "$tmp/source"
+          git -C "$tmp/source" sparse-checkout set pcsx2-wasm/web COPYING.GPLv3 bin/docs/ThirdPartyLicenses.html
+          rm -rf emulators/ps2
+          mkdir -p emulators/ps2/docs
+          cp -a "$tmp/source/pcsx2-wasm/web/." emulators/ps2/
+          cp "$tmp/source/COPYING.GPLv3" emulators/ps2/COPYING.GPLv3
+          cp "$tmp/source/bin/docs/ThirdPartyLicenses.html" emulators/ps2/docs/ThirdPartyLicenses.html
+          for asset in pcsx2-wasm.js pcsx2-wasm.wasm pcsx2-wasm.data; do
+            curl --fail --location --retry 5 --retry-all-errors --retry-delay 3 \
+              --connect-timeout 20 --max-time 1200 \
+              "https://tabstationtoo.github.io/TabStationToo/$asset" \
+              --output "emulators/ps2/$asset"
+            test -s "emulators/ps2/$asset"
+          done
+          cp emulators/ps2/isolation.js emulators/isolation.js
+          cp emulators/ps2/coi-serviceworker.js emulators/coi-serviceworker.js
+          {
+            echo "Upstream project: https://github.com/TabStationToo/TabStationToo"
+            echo "Source branch: wasm"
+            echo "Source commit: $(git -C "$tmp/source" rev-parse HEAD)"
+            echo "License: GNU GPL-3.0"
+            echo "WebAssembly build assets: https://tabstationtoo.github.io/TabStationToo/"
+          } > emulators/ps2/UPSTREAM-SOURCE.txt
+          du -sh emulators/ps2
       - name: Publish site to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
