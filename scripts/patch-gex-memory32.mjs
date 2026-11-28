@@ -140,3 +140,5 @@ writeFileSync(kmemPath, kmem);
 writeFileSync(buildPath, build);
 writeFileSync(glPath, gl);
 console.log('Applied GEX wasm32-only memory patch and egl_wire_context duplicate-definition fix.');
+
+// Rebuild trigger for the ARM64 glibc loader path fix.
