@@ -6,8 +6,8 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: vulkangames-arm64-build
+  cancel-in-progress: false
 jobs:
   deploy:
     runs-on: ubuntu-latest
