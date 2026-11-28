@@ -29,7 +29,7 @@ button.secondary,.btn.secondary{background:#251923;color:var(--text);border:1px 
 <section class="panel">
 <h2>Interface</h2>
 <div class="grid">
-<label class="field"><span>Idioma do site</span><select id="language"><option value="pt-BR">Português (Brasil)</option><option value="en">English</option></select><small>Traduz as páginas VulkanGames. A interface interna do TabStationToo continua em inglês.</small></label>
+<label class="field"><span>Idioma do site</span><select id="language"><option value="pt-BR">Português (Brasil)</option><option value="en">English</option></select><small>Traduz a central de emuladores e as configurações. O catálogo principal permanece em português.</small></label>
 <label class="field"><span>Abrir jogos de PS2 em</span><select id="launchMode"><option value="page">Outra página (dedicada)</option><option value="embedded">Janela dentro da página Emuladores</option></select><small>Você pode mudar isso a qualquer momento.</small></label>
 </div>
 </section>
@@ -37,7 +37,7 @@ button.secondary,.btn.secondary{background:#251923;color:var(--text);border:1px 
 <h2>Desempenho e imagem — PlayStation 2</h2>
 <label class="field"><span>Perfil rápido</span><select id="profile">
 <option value="balanced">Equilibrado / automático</option>
-<option value="performance">Desempenho (resolução nativa)</option>
+<option value="performance">Desempenho (GPU, resolução nativa)</option>
 <option value="quality">Qualidade visual (GPU, 2×)</option>
 <option value="compatibility">Compatibilidade (renderizador por software)</option>
 <option value="custom">Personalizado</option>
@@ -108,7 +108,7 @@ button.secondary,.btn.secondary{background:#251923;color:var(--text);border:1px 
    labels.forEach((el,i)=>{if(i<labels.length)el.textContent=en?labelEn[i]:labelPt[i]});
    const smalls=document.querySelectorAll('.field small');
    const smallPt=['Traduz as páginas VulkanGames. A interface interna do TabStationToo continua em inglês.','Você pode mudar isso a qualquer momento.','O perfil altera somente as opções abaixo; não aumenta a potência real do computador.'];
-   const smallEn=['Translates VulkanGames pages. The TabStationToo interface itself remains in English.','You can change this at any time.','The profile changes only the options below; it does not increase the computer’s actual performance.'];
+   const smallEn=['Translates the emulator hub and settings pages. The main game catalog remains in Portuguese.','You can change this at any time.','The profile changes only the options below; it does not increase the computer’s actual performance.'];
    smalls.forEach((el,i)=>{if(i<3)el.textContent=en?smallEn[i]:smallPt[i]});
    const selects=document.querySelectorAll('select');
    const optionSets=en?[
