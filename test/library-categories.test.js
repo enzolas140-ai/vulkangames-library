@@ -19,7 +19,8 @@ test('Mario Advance remains in the GBA section', () => {
   const mario = catalog.games.find(game => /Super Mario Advance 4/i.test(game.title));
   assert.ok(mario, 'Mario Advance entry exists');
   assert.equal(mario.system, 'gba');
-  assert.match(mario.url, /super-mario-advance-4-gba\.zip$/);
+  assert.equal(mario.url, './games/gba/super-mario-advance-4-gba.zip');
+  assert.ok(fs.existsSync('games/gba/super-mario-advance-4-gba.zip'), 'GBA ROM is stored in the GBA folder');
 });
 
 test('Crash Bandicoot remains in the PS1 section and not among HTML games', () => {
