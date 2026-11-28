@@ -121,12 +121,12 @@ build = build.replace(oldBuild, newBuild);
 
 // Fix the pinned guest GL source's duplicate thread-local context declaration.
 const firstContextDecl = 'static GEXGL_TLS unsigned egl_wire_context;';
-const laterContextBlock = '#define GEXGL_MAX_CONTEXTS 16\\nstruct gexgl_context_state {';
-const duplicateContextDecl = 'static GEXGL_TLS unsigned egl_wire_context = GEXGL_MAX_CONTEXTS; /* this thread\\'s; none */';
+const laterContextBlock = '#define GEXGL_MAX_CONTEXTS 16\nstruct gexgl_context_state {';
+const duplicateContextDecl = "static GEXGL_TLS unsigned egl_wire_context = GEXGL_MAX_CONTEXTS; /* this thread's; none */";
 if (!gl.includes(firstContextDecl) || !gl.includes(laterContextBlock) || !gl.includes(duplicateContextDecl)) {
   throw new Error('GEX GL patch anchor not found: egl_wire_context declarations');
 }
-gl = gl.replace(firstContextDecl, '#define GEXGL_MAX_CONTEXTS 16\\nstatic GEXGL_TLS unsigned egl_wire_context = GEXGL_MAX_CONTEXTS;');
+gl = gl.replace(firstContextDecl, '#define GEXGL_MAX_CONTEXTS 16\nstatic GEXGL_TLS unsigned egl_wire_context = GEXGL_MAX_CONTEXTS;');
 gl = gl.replace(laterContextBlock, 'struct gexgl_context_state {');
 gl = gl.replace(duplicateContextDecl, '/* egl_wire_context is defined above with its no-context sentinel. */');
 if ((gl.match(/static GEXGL_TLS unsigned egl_wire_context/g) || []).length !== 1) {
