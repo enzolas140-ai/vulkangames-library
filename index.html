@@ -25,9 +25,19 @@ button,.btn,select,input{touch-action:manipulation}
 #game canvas{display:block;margin:auto;object-fit:contain;image-rendering:auto}
 @media(pointer:coarse){button,.btn,select{min-height:46px}body{overscroll-behavior-y:contain}}
 @supports(padding:max(0px)){header{padding-top:max(20px,env(safe-area-inset-top))}footer{padding-bottom:max(28px,env(safe-area-inset-bottom))}}
+
+.site-nav{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.site-nav a{display:inline-flex;align-items:center;padding:8px 13px;border:1px solid #60303d;border-radius:8px;color:var(--text);background:#211820;text-decoration:none;font-weight:750;font-size:14px}
+.site-nav a:hover,.site-nav a.active{background:#3b1b27;border-color:var(--accent);color:#fff}
 </style></head>
 <body>
-<header><div class="brand">VULKAN<span>GAMES</span> <small style="font-size:14px;color:#a8b2c5">ARCADE</small></div><p>Seu espaço para jogar clássicos retrô no navegador.</p></header>
+<header>
+<div class="brand">VULKAN<span>GAMES</span> <small style="font-size:14px;color:#a8b2c5">ARCADE</small></div>
+<p>Seu espaço para jogar clássicos retrô no navegador.</p>
+<nav class="site-nav" aria-label="Navegação principal">
+<a class="active" href="./">Jogos</a><a href="./emulators/">Emuladores</a><a href="./emulators/settings.html">Configurações</a>
+</nav>
+</header>
 <main>
 <section class="hero"><div><h1>Biblioteca de jogos</h1><div class="muted">Escolha um jogo do catálogo ou carregue sua própria ROM.</div></div><label class="btn" for="romFile">＋ Abrir ROM / ZIP</label><a class="btn secondary" href="./arm64.html">Ports Linux ARM64 (experimental)</a><input id="romFile" type="file" hidden accept=".gb,.gbc,.gba,.nes,.sfc,.smc,.md,.smd,.gen,.cue,.ccd,.m3u,.chd,.pbp,.img,.mdf,.toc,.cbn,.nds,.zip" multiple></section>
 <div class="toolbar" style="justify-content:flex-end"><a class="btn secondary" href="./admin.html">⚙ Cadastrar jogos autorizados</a></div>
