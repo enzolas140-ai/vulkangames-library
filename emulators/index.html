@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131c"><title>VulkanGames — Emuladores</title>
+<script src="./isolation.js"></script>
+<script src="./coi-serviceworker.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#0b0e15;--panel:#17151c;--line:#482431;--muted:#b6b0ba;--accent:#c72e45;--text:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#3b1b27 0,#0b0d12 58%);color:var(--text);font:16px/1.5 system-ui,Segoe UI,sans-serif;min-height:100vh}
+header{padding:24px max(18px,calc((100% - 1180px)/2));border-bottom:1px solid var(--line);background:#0b0d12ed}
+.brand{font-weight:950;letter-spacing:.04em;font-size:clamp(26px,5vw,43px)}.brand span{color:var(--accent)}header p{margin:3px 0 0;color:var(--muted)}
+.site-nav{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.site-nav a{display:inline-flex;padding:8px 13px;border:1px solid #60303d;border-radius:8px;color:var(--text);background:#211820;text-decoration:none;font-weight:750;font-size:14px}.site-nav a.active{background:#3b1b27;border-color:var(--accent)}
+main{max-width:1180px;margin:26px auto;padding:0 18px}.hero{padding:25px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#321b25,#17151c)}
+h1{font-size:clamp(24px,4vw,34px);margin:0 0 6px}.muted{color:var(--muted)}
+button,.btn{font:inherit;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:8px;padding:11px 16px;background:var(--accent);color:white;font-weight:800;cursor:pointer;text-decoration:none;min-height:44px}
+button.secondary,.btn.secondary{background:#251923;color:var(--text);border:1px solid #60303d}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
+.card{background:linear-gradient(155deg,#211820,#11141b);border:1px solid #49232f;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.card .art{height:150px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,#4b202d,#12151d);font-size:58px}
+.card h2{margin:0;font-size:21px}.card p{margin:0;color:var(--muted);font-size:14px;flex:1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.notice{margin-top:18px;padding:14px 16px;border:1px solid #59432e;background:#261d16;border-radius:12px;color:#ebc9a9;font-size:14px}
+#player{display:none;margin-top:22px;border:1px solid var(--line);border-radius:14px;background:#05070b;overflow:hidden}
+#playerHead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:#11141b}
+#ps2Frame{display:block;width:100%;height:min(86vh,950px);min-height:620px;border:0;background:#000}
+.status{font-size:13px;color:var(--muted);margin-top:12px}
+footer{max-width:1180px;margin:32px auto;padding:0 18px 28px;color:var(--muted);font-size:13px}
+@media(max-width:650px){main{padding:0 12px}.hero{padding:18px}#ps2Frame{height:78vh;min-height:520px}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="brand">VULKAN<span>GAMES</span> <small style="font-size:14px;color:#a8b2c5">ARCADE</small></div><p>Emuladores separados da biblioteca de jogos.</p>
+<nav class="site-nav" aria-label="Navegação principal"><a href="../">Jogos</a><a class="active" href="./">Emuladores</a><a href="./settings.html">Configurações</a></nav>
+</header>
+<main>
+<section class="hero"><h1>Central de emuladores</h1><div class="muted">Escolha o sistema que deseja emular. Os jogos e BIOS são carregados por você e permanecem no seu navegador.</div>
+<div class="actions"><a class="btn secondary" href="./settings.html">⚙ Configurações gerais</a></div></section>
+<section class="cards">
+<article class="card">
+<div class="art" aria-hidden="true">🎮</div>
+<div class="muted">PLAYSTATION 2 · WEBASSEMBLY</div>
+<h2>TabStationToo — PS2</h2>
+<p>Emulador PCSX2 compilado para WebAssembly. Testado pelo projeto com GTA San Andreas e outros jogos. Requer BIOS extraída do seu próprio console e imagem de disco de um jogo que você possui.</p>
+<div class="actions"><button id="playPs2">Jogar PS2</button><a class="btn secondary" href="./ps2/">Abrir página do emulador</a></div>
+</article>
+<article class="card">
+<div class="art" aria-hidden="true">🕹️</div>
+<div class="muted">EMULADORES CLÁSSICOS</div>
+<h2>GB · GBA · NES · SNES · PS1 · DS</h2>
+<p>Os emuladores retrô já integrados à biblioteca principal VulkanGames continuam disponíveis nos cartões de jogos e na opção de abrir ROM local.</p>
+<div class="actions"><a class="btn secondary" href="../">Abrir biblioteca de jogos</a></div>
+</article>
+</section>
+<div id="status" class="status" role="status">Verificando os recursos de isolamento necessários para a emulação multithread…</div>
+<div id="player">
+<div id="playerHead"><strong>TabStationToo — PlayStation 2</strong><button id="closePlayer" class="secondary" type="button">Fechar emulador</button></div>
+<iframe id="ps2Frame" title="Emulador PlayStation 2 TabStationToo" allow="fullscreen; autoplay; gamepad"></iframe>
+</div>
+<div class="notice"><strong>Importante:</strong> TabStationToo é experimental e foi pensado principalmente para computadores desktop. A emulação de PS2 exige bastante CPU e memória. O site não fornece BIOS nem imagens de jogos. Na primeira visita, o navegador pode recarregar a página uma vez para ativar o isolamento necessário ao WebAssembly com threads.</div>
+</main>
+<footer>VulkanGames · TabStationToo / PCSX2 · <a style="color:#ef8292" href="https://github.com/TabStationToo/TabStationToo">Código-fonte e licença GPL-3.0</a></footer>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const mode=()=>{try{return localStorage.getItem('vg.launchMode')||'page'}catch(e){return 'page'}};
+  const lang=()=>{try{return localStorage.getItem('vg.uiLanguage')||'pt-BR'}catch(e){return 'pt-BR'}};
+  function applyLanguage(){
+    if(lang()==='en'){
+      document.documentElement.lang='en';
+      document.title='VulkanGames — Emulators';
+      document.querySelector('header p').textContent='Emulators separated from the game library.';
+      document.querySelector('h1').textContent='Emulator center';
+      document.querySelector('.hero .muted').textContent='Choose the system to emulate. Games and BIOS are selected by you and stay in your browser.';
+      document.querySelector('nav a[href="./"]').textContent='Emulators';
+      document.querySelector('nav a[href="./settings.html"]').textContent='Settings';
+      document.querySelector('nav a[href="../"]').textContent='Games';
+      document.querySelector('.card h2').textContent='TabStationToo — PS2';
+      document.querySelector('.card .muted').textContent='PLAYSTATION 2 · WEBASSEMBLY';
+      document.querySelectorAll('.card p')[0].textContent='PCSX2 emulator compiled to WebAssembly. Tested by the project with GTA San Andreas and other games. Requires a BIOS dumped from your own console and a disc image of a game you own.';
+      $('playPs2').textContent='Play PS2';
+      document.querySelectorAll('.card h2')[1].textContent='GB · GBA · NES · SNES · PS1 · DS';
+      document.querySelectorAll('.card p')[1].textContent='The retro emulators integrated into the main VulkanGames library remain available from game cards and the local ROM option.';
+      $('status').textContent='Checking browser isolation features required for multithreaded emulation…';
+      document.querySelector('.notice').innerHTML='<strong>Important:</strong> TabStationToo is experimental and designed mainly for desktop computers. PS2 emulation needs substantial CPU and memory. The site does not provide BIOS files or game images. On the first visit, the browser may reload once to enable the isolation required by multithreaded WebAssembly.';
+    }
+  }
+  function updateStatus(){
+    const ok=window.crossOriginIsolated&&typeof SharedArrayBuffer==='function';
+    if(ok)$('status').textContent=lang()==='en'?'Browser isolation is active. Embedded mode is available.':'Isolamento do navegador ativo. O modo incorporado está disponível.';
+    else $('status').textContent=lang()==='en'?'Isolation is not active yet. Use “Open emulator page” if embedded mode fails.':'O isolamento ainda não está ativo. Use “Abrir página do emulador” caso o modo incorporado falhe.';
+  }
+  $('playPs2').addEventListener('click',function(){
+    if(mode()==='page'){location.href='./ps2/';return}
+    $('player').style.display='block';
+    $('ps2Frame').src='./ps2/';
+    $('player').scrollIntoView({behavior:'smooth',block:'start'});
+    if(!window.crossOriginIsolated){
+      $('status').textContent=lang()==='en'?'The page is not cross-origin isolated. Embedded PS2 may not start; open it in its own page.':'A página não está isolada entre origens. O PS2 incorporado pode não iniciar; abra-o em sua própria página.';
+    }
+  });
+  $('closePlayer').addEventListener('click',function(){$('ps2Frame').src='about:blank';$('player').style.display='none'});
+  applyLanguage();
+  updateStatus();
+  window.addEventListener('tabstationtoo-isolation',updateStatus);
+})();
+</script>
+</body></html>
