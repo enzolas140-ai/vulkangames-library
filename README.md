@@ -21,7 +21,9 @@ Biblioteca web de emulação retrô no navegador com EmulatorJS. Use somente ROM
 A rota **Ports Linux ARM64 (experimental)** abre um launcher baseado no runtime GEX (Linux AArch64 em WebAssembly). Ele aceita ZIP ou pasta local, monta os arquivos em um userspace Linux e inicia um ELF AArch64 ou script Linux. Gráficos convidados OpenGL/OpenGL ES passam pela camada Mesa do GEX e pelo WebGPU do navegador; áudio usa Web Audio e controles usam a Gamepad API.
 
 - Requer navegador moderno com WebGPU para gráficos acelerados (Chrome/Edge atual recomendado).
-- Não executa APK/XAPK Android nem implementa Bionic, JNI ou serviços Android. KMSDRM e APIs específicas de PortMaster também não são emulados.
+- O perfil de Zombie Tsunami reconhece o loader ELF AArch64 do pacote PortMaster, usa ABI glibc, inclui dependências ARM64 de SDL2/FreeType/zlib e tenta selecionar SDL2/X11 para desenhar pelo Xwayland/Mesa/WebGPU.
+- O loader do port não é um APK: ele carrega sua própria biblioteca JNI e assets. O perfil ignora o script PortMaster e abre o loader diretamente, com a pasta de dados do jogo configurada.
+- Não emula o DRM/KMS do dispositivo, nem garante que a inicialização SDL2, FMOD ou chamadas específicas do loader funcionem no GEX. APK/XAPK Android comuns, Bionic e serviços Android continuam fora do escopo.
 - Cada port precisa das bibliotecas, assets e ABI corretos. Isso não significa que todo executável ARM64 funcione.
 - O runtime é montado automaticamente pelo workflow de Pages usando a revisão registrada em `arm64-runtime.lock`. O código e as licenças GEX são publicados em `arm64/runtime/`; GEX é AGPL-3.0-only.
 
