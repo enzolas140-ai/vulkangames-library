@@ -11,6 +11,13 @@
       "system": "psx",
       "url": "https://vulkangames-roms.enzolas140.workers.dev/ps1/crash-bandicoot.chd",
       "description": "Crash Bandicoot para PlayStation (USA), em CHD, servido pelo gateway privado do VulkanGames."
+    },
+    {
+      "title": "Five Nights at Freddy's",
+      "system": "html",
+      "type": "html",
+      "url": "./fnaf.html",
+      "description": "Sobreviva às noites na pizzaria e jogue diretamente no navegador."
     }
   ]
 }
