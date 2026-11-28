@@ -37,7 +37,7 @@ jobs:
             const mario = (catalog.games || []).find(game => /Super Mario Advance 4/i.test(game.title || ''));
             if (!mario) throw new Error('Mario Advance entry was not found in catalog.json');
             mario.url = './games/gba/super-mario-advance-4-gba.zip';
-            fs.writeFileSync(path, JSON.stringify(catalog, null, 2) + '\\n');
+            fs.writeFileSync(path, JSON.stringify(catalog, null, 2) + '\n');
             NODE
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
