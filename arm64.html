@@ -78,6 +78,12 @@ footer{max-width:1100px;margin:26px auto;padding:0 18px 30px;color:var(--muted);
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script type="module">
+import { System } from './arm64/runtime/index.mjs';
+import { MemoryFilesystem } from './arm64/runtime/fs.mjs';
+import { SingleCanvas } from './arm64/runtime/windows-single.mjs';
+import { MesaGl } from './arm64/runtime/gl.mjs';
+import { Gamepads } from './arm64/runtime/input.mjs';
+import { WebAudio } from './arm64/runtime/audio.mjs';
 const $ = (id) => document.getElementById(id);
 const MAX_UPLOAD = 480 * 1024 * 1024;
 let imported = null;
@@ -129,10 +135,19 @@ function detectAbi(bytes) {
   return 'unknown';
 }
 function detectEntry(files) {
-  for (const [path, bytes] of Object.entries(files)) {
-    if (isArm64Elf(bytes)) return { path, abi: detectAbi(bytes) };
-  }
-  return null;
+  const candidates = Object.entries(files).filter(([path, bytes]) => isArm64Elf(bytes));
+  const score = ([path, bytes]) => {
+    const name = path.toLowerCase();
+    const interpreter = elfInterpreter(bytes);
+    return (name.endsWith('.so') || name.includes('/lib/')) ? 100 :
+      interpreter.includes('/system/bin/linker') ? 80 :
+      /(^|\/)(start|run|launch|game|loader)([-_.]|$)/.test(name) ? 0 :
+      interpreter ? 10 : 30;
+  };
+  candidates.sort((a, b) => score(a) - score(b));
+  if (!candidates.length) return null;
+  const [path, bytes] = candidates[0];
+  return { path, abi: detectAbi(bytes), alternatives: candidates.length };
 }
 function parseArgs(raw) {
   const out = [];
@@ -238,24 +253,18 @@ async function readGuestGraphics() {
 async function bootRuntime() {
   if (initialized) return;
   if (!navigator.gpu) throw new Error('Este navegador não expõe WebGPU. Use uma versão atual do Chrome ou Edge com aceleração gráfica ativada.');
-  const [{ System }, { MemoryFilesystem }, { SingleCanvas }, { MesaGl }, { Gamepads }, { WebAudio }] = await Promise.all([
-    import('./arm64/runtime/index.mjs'),
-    import('./arm64/runtime/fs.mjs'),
-    import('./arm64/runtime/windows-single.mjs'),
-    import('./arm64/runtime/gl.mjs'),
-    import('./arm64/runtime/input.mjs'),
-    import('./arm64/runtime/audio.mjs')
-  ]);
   sys = new System({ arch: 'aarch64', baseUrl: new URL('./arm64/runtime/', location.href).href, xcache: true });
+  systemCreated = true;
   fs = new MemoryFilesystem(sys, { max: MAX_UPLOAD + 64 * 1024 * 1024 });
+  display = new SingleCanvas(sys, { container: $('screen'), x11: 'rootless' });
+  gl = new MesaGl(sys);
+  pads = new Gamepads(sys);
+  // Constructed synchronously from the Start button gesture to unlock browser audio.
+  audio = new WebAudio(sys);
   await fs.addTar(new URL('./arm64/rootfs/busybox.tar', location.href));
   const graphics = await readGuestGraphics();
   if (Object.keys(graphics).length) await fs.addFiles(graphics);
   if (imported) await fs.addFiles(imported.files);
-  display = new SingleCanvas(sys, { container: $('screen'), x11: 'rootless' });
-  gl = new MesaGl(sys);
-  pads = new Gamepads(sys);
-  audio = new WebAudio(sys);
   await sys.boot();
   initialized = true;
   $('screen').style.display = 'block';
@@ -269,14 +278,10 @@ async function bootRuntime() {
   if (smoke.code !== 0 || !smoke.stdout.toLowerCase().includes('aarch64')) throw new Error('O teste básico não confirmou aarch64.');
   setStatus('Runtime ARM64 iniciado e teste básico aprovado.', 'success');
 }
+let systemCreated = false;
 async function start() {
   $('start').disabled = true;
   try {
-    // This handler is a user gesture: WebAudio must be made before awaiting.
-    if (!audio && !initialized) {
-      // Created after the runtime modules are imported in bootRuntime; browser still
-      // considers this activation in the handler.
-    }
     setStatus('Preparando runtime Linux ARM64…');
     await bootRuntime();
     log('Runtime GEX pronto. OpenGL/OpenGL ES será iniciado sob demanda.');
@@ -284,7 +289,8 @@ async function start() {
   } catch (err) {
     setStatus('Falha ao iniciar: ' + err.message, 'error');
     log('ERRO DE INICIALIZAÇÃO: ' + (err.stack || err.message));
-    $('start').disabled = initialized;
+    $('start').disabled = systemCreated || initialized;
+    if (systemCreated && !initialized) log('O runtime só pode ser criado uma vez nesta aba. Recarregue a página para tentar novamente.');
   }
 }
 async function runPort() {
