@@ -66,24 +66,28 @@ footer{max-width:1180px;margin:32px auto;padding:0 18px 28px;color:var(--muted);
   const mode=()=>{try{return localStorage.getItem('vg.launchMode')||'page'}catch(e){return 'page'}};
   const lang=()=>{try{return localStorage.getItem('vg.uiLanguage')||'pt-BR'}catch(e){return 'pt-BR'}};
   function applyLanguage(){
-    if(lang()==='en'){
-      document.documentElement.lang='en';
-      document.title='VulkanGames — Emulators';
-      document.querySelector('header p').textContent='Emulators separated from the game library.';
-      document.querySelector('h1').textContent='Emulator center';
-      document.querySelector('.hero .muted').textContent='Choose the system to emulate. Games and BIOS are selected by you and stay in your browser.';
-      document.querySelector('nav a[href="./"]').textContent='Emulators';
-      document.querySelector('nav a[href="./settings.html"]').textContent='Settings';
-      document.querySelector('nav a[href="../"]').textContent='Games';
-      document.querySelector('.card h2').textContent='TabStationToo — PS2';
-      document.querySelector('.card .muted').textContent='PLAYSTATION 2 · WEBASSEMBLY';
-      document.querySelectorAll('.card p')[0].textContent='PCSX2 emulator compiled to WebAssembly. Tested by the project with GTA San Andreas and other games. Requires a BIOS dumped from your own console and a disc image of a game you own.';
-      $('playPs2').textContent='Play PS2';
-      document.querySelectorAll('.card h2')[1].textContent='GB · GBA · NES · SNES · PS1 · DS';
-      document.querySelectorAll('.card p')[1].textContent='The retro emulators integrated into the main VulkanGames library remain available from game cards and the local ROM option.';
-      $('status').textContent='Checking browser isolation features required for multithreaded emulation…';
-      document.querySelector('.notice').innerHTML='<strong>Important:</strong> TabStationToo is experimental and designed mainly for desktop computers. PS2 emulation needs substantial CPU and memory. The site does not provide BIOS files or game images. On the first visit, the browser may reload once to enable the isolation required by multithreaded WebAssembly.';
-    }
+    const en=lang()==='en';
+    document.documentElement.lang=en?'en':'pt-BR';
+    document.title=en?'VulkanGames — Emulators':'VulkanGames — Emuladores';
+    document.querySelector('header p').textContent=en?'Emulators separated from the game library.':'Emuladores separados da biblioteca de jogos.';
+    document.querySelector('h1').textContent=en?'Emulator center':'Central de emuladores';
+    document.querySelector('.hero .muted').textContent=en?'Choose the system to emulate. Games and BIOS are selected by you and stay in your browser.':'Escolha o sistema que deseja emular. Os jogos e BIOS são carregados por você e permanecem no seu navegador.';
+    document.querySelector('nav a[href="./"]').textContent=en?'Emulators':'Emuladores';
+    document.querySelector('nav a[href="./settings.html"]').textContent=en?'Settings':'Configurações';
+    document.querySelector('nav a[href="../"]').textContent=en?'Games':'Jogos';
+    document.querySelector('.hero .actions a').textContent=en?'⚙ General settings':'⚙ Configurações gerais';
+    document.querySelectorAll('.card .muted')[0].textContent='PLAYSTATION 2 · WEBASSEMBLY';
+    document.querySelectorAll('.card .muted')[1].textContent=en?'CLASSIC EMULATORS':'EMULADORES CLÁSSICOS';
+    document.querySelectorAll('.card h2')[0].textContent='TabStationToo — PS2';
+    document.querySelectorAll('.card p')[0].textContent=en?'PCSX2 emulator compiled to WebAssembly. Tested by the project with GTA San Andreas and other games. Requires a BIOS dumped from your own console and a disc image of a game you own.':'Emulador PCSX2 compilado para WebAssembly. Testado pelo projeto com GTA San Andreas e outros jogos. Requer BIOS extraída do seu próprio console e imagem de disco de um jogo que você possui.';
+    $('playPs2').textContent=en?'Play PS2':'Jogar PS2';
+    document.querySelectorAll('.card a.btn.secondary')[0].textContent=en?'Open emulator page':'Abrir página do emulador';
+    document.querySelectorAll('.card h2')[1].textContent='GB · GBA · NES · SNES · PS1 · DS';
+    document.querySelectorAll('.card p')[1].textContent=en?'The retro emulators integrated into the main VulkanGames library remain available from game cards and the local ROM option.':'Os emuladores retrô já integrados à biblioteca principal VulkanGames continuam disponíveis nos cartões de jogos e na opção de abrir ROM local.';
+    document.querySelectorAll('.card a.btn.secondary')[1].textContent=en?'Open game library':'Abrir biblioteca de jogos';
+    document.querySelector('.notice').innerHTML=en?'<strong>Important:</strong> TabStationToo is experimental and designed mainly for desktop computers. PS2 emulation needs substantial CPU and memory. The site does not provide BIOS files or game images. On the first visit, the browser may reload once to enable the isolation required by multithreaded WebAssembly.':'<strong>Importante:</strong> TabStationToo é experimental e foi pensado principalmente para computadores desktop. A emulação de PS2 exige bastante CPU e memória. O site não fornece BIOS nem imagens de jogos. Na primeira visita, o navegador pode recarregar a página uma vez para ativar o isolamento necessário ao WebAssembly com threads.';
+    document.querySelector('footer').innerHTML=en?'VulkanGames · TabStationToo / PCSX2 · <a style="color:#ef8292" href="https://github.com/TabStationToo/TabStationToo">Source code and GPL-3.0 license</a>':'VulkanGames · TabStationToo / PCSX2 · <a style="color:#ef8292" href="https://github.com/TabStationToo/TabStationToo">Código-fonte e licença GPL-3.0</a>';
+    updateStatus();
   }
   function updateStatus(){
     const ok=window.crossOriginIsolated&&typeof SharedArrayBuffer==='function';
@@ -103,6 +107,8 @@ footer{max-width:1180px;margin:32px auto;padding:0 18px 28px;color:var(--muted);
   applyLanguage();
   updateStatus();
   window.addEventListener('tabstationtoo-isolation',updateStatus);
+  window.addEventListener('pageshow',function(){applyLanguage();updateStatus()});
+  window.addEventListener('storage',function(e){if(e.key==='vg.uiLanguage')applyLanguage()});
 })();
 </script>
 </body></html>
