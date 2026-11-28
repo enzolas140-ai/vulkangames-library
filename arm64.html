@@ -256,6 +256,7 @@ async function bootRuntime() {
   sys = new System({ arch: 'aarch64', baseUrl: new URL('./arm64/runtime/', location.href).href, xcache: true });
   systemCreated = true;
   fs = new MemoryFilesystem(sys, { max: MAX_UPLOAD + 64 * 1024 * 1024 });
+  $('screen').style.display = 'block';
   display = new SingleCanvas(sys, { container: $('screen'), x11: 'rootless' });
   gl = new MesaGl(sys);
   pads = new Gamepads(sys);
