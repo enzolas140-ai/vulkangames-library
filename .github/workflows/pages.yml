@@ -2,6 +2,10 @@ name: Deploy VulkanGames and build ARM64 runtime
 on:
   push:
     branches: [main]
+    paths:
+      - "arm64.html"
+      - "arm64-runtime.lock"
+      - "scripts/**"
   workflow_dispatch:
 permissions:
   contents: write
