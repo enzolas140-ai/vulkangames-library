@@ -1,0 +1,5 @@
+GEX repository: https://github.com/BrowserPorts/stellite-gex
+GEX commit: 95fb079c93bb1e46835e5fa6d807db5d01dd1491
+GEX branch at build time: stellite
+Runtime mode: single-thread (static GitHub Pages compatible)
+License: AGPL-3.0-only
