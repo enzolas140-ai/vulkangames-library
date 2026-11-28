@@ -1,3 +1,11 @@
 {
-  "games": []
+  "games": [
+    {
+      "title": "Five Nights at Freddy's",
+      "system": "html",
+      "type": "html",
+      "url": "./fnaf.html",
+      "description": "Sobreviva às noites na pizzaria e jogue diretamente no navegador."
+    }
+  ]
 }
