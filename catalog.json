@@ -164,6 +164,55 @@
                       "url":  "./html-games/motox3m.htm",
                       "description":  "Corridas de moto com acrobacias, saltos e armadilhas.",
                       "cover":  "./covers/moto-x3m.jpg?v=caps13"
+                  },
+                  {
+                      "title":  "Ragdoll Archers",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/ragdollarchers.htm",
+                      "description":  "Jogo de arqueiros com física ragdoll e partidas de habilidade."
+                  },
+                  {
+                      "title":  "Sand",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/sandgame.html",
+                      "description":  "Simulador de areia e materiais com física de partículas."
+                  },
+                  {
+                      "title":  "Super Mario 64",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/sm64.html",
+                      "description":  "Aventura de plataforma em 3D no Reino dos Cogumelos."
+                  },
+                  {
+                      "title":  "Subway Surfers: San Francisco",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/subwaysurferssanfrancisco.html",
+                      "description":  "Corra pelos trilhos, desvie de obstáculos e explore San Francisco."
+                  },
+                  {
+                      "title":  "Temple Run 2",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/templerun2.htm",
+                      "description":  "Corrida sem fim: salte, deslize e desvie dos obstáculos."
+                  },
+                  {
+                      "title":  "UNDERTALE",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/UNDERTALE.html",
+                      "description":  "RPG de aventura com personagens, escolhas e exploração."
+                  },
+                  {
+                      "title":  "ULTRAKILL WEB PORT 1.7a",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./serverbuild/index.html",
+                      "description":  "Port WebGL de ULTRAKILL, versão 1.7a."
                   }
               ]
 }
