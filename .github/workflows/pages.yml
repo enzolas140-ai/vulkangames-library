@@ -187,7 +187,10 @@ jobs:
           done
           # Ubuntu 26.04 may place the AArch64 loader under the multiarch libdir
           # instead of providing the legacy /lib/ld-linux-aarch64.so.1 path.
-          LOADER_REAL="$(find "$ROOTFS_DIR" -type f \\\( -name 'ld-linux-aarch64.so.1' -o -name 'ld-*.so' \\\) -print -quit)"
+          LOADER_REAL="$(find "$ROOTFS_DIR" -type f -name 'ld-linux-aarch64.so.1' -print -quit)"
+          if [ -z "$LOADER_REAL" ]; then
+            LOADER_REAL="$(find "$ROOTFS_DIR" -type f -name 'ld-*.so' -print -quit)"
+          fi
           if [ -z "$LOADER_REAL" ]; then
             echo "AArch64 glibc dynamic loader was not found in the downloaded libc6 package."
             find "$ROOTFS_DIR" -maxdepth 5 -iname '*ld*' -print | head -80
