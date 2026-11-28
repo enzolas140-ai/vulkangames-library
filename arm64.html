@@ -189,6 +189,23 @@ async function importFiles(fileRows, label) {
     else if (detected.abi === 'glibc') $('abi').value = 'glibc';
     else if (detected.abi === 'android') $('abi').value = 'auto';
   }
+  const zombieLoader = Object.keys(map).find(path => /\/zombie-tsunami\/bin\/zombie-tsunami-loader$/i.test(path));
+  if (zombieLoader) {
+    const gameDir = zombieLoader.replace(/\/bin\/zombie-tsunami-loader$/i, '');
+    $('entry').value = zombieLoader;
+    $('abi').value = 'glibc';
+    $('env').value = [
+      'ZT_GAMEDIR=' + gameDir,
+      'ZT_LOG_FILE=' + gameDir + '/logs/web-run.log',
+      'HOME=' + gameDir,
+      'XDG_CONFIG_HOME=' + gameDir + '/save',
+      'XDG_DATA_HOME=' + gameDir + '/save',
+      'SDL_VIDEODRIVER=x11',
+      'SDL_VIDEO_X11_NODIRECTCOLOR=1',
+      'LD_LIBRARY_PATH=' + gameDir + '/lib:' + gameDir + '/payload:/usr/lib/gex-glibc:/usr/lib/aarch64-linux-gnu:/lib/aarch64-linux-gnu:/usr/lib:/lib'
+    ].join('\\n');
+    log('Perfil Zombie Tsunami detectado: ABI glibc, SDL2/X11→WebGPU e diretórios do port configurados.');
+  }
   $('filesStatus').textContent = Object.keys(map).length + ' arquivos · ' + (total / 1048576).toFixed(1) + ' MiB · ' + label;
   $('run').disabled = !initialized || !detected;
   log('Pacote importado: ' + label + ' (' + Object.keys(map).length + ' arquivos).');
@@ -263,6 +280,7 @@ async function bootRuntime() {
   // Constructed synchronously from the Start button gesture to unlock browser audio.
   audio = new WebAudio(sys);
   await fs.addTar(new URL('./arm64/rootfs/busybox.tar', location.href));
+  await fs.addTar(new URL('./arm64/rootfs/glibc-runtime.tar', location.href));
   const graphics = await readGuestGraphics();
   if (Object.keys(graphics).length) await fs.addFiles(graphics);
   if (imported) await fs.addFiles(imported.files);
@@ -303,18 +321,19 @@ async function runPort() {
   const args = parseArgs($('args').value);
   const abi = $('abi').value;
   const abiPath = abi === 'glibc' ? '/usr/lib/gex-glibc' : '/usr/lib/gex-musl';
+  const customEnv = parseEnv($('env').value);
   const env = {
     HOME: '/home/user',
     PATH: '/bin:/usr/bin:/usr/local/bin',
     TERM: 'linux',
-    SDL_VIDEODRIVER: 'wayland',
-    LD_LIBRARY_PATH: abiPath + ':/usr/lib:/lib:' + entry.slice(0, entry.lastIndexOf('/')),
+    SDL_VIDEODRIVER: 'x11',
+    LD_LIBRARY_PATH: abiPath + ':/usr/lib/aarch64-linux-gnu:/lib/aarch64-linux-gnu:/usr/lib:/lib:' + entry.slice(0, entry.lastIndexOf('/')),
     ...display.env,
     ...pads.env,
-    ...parseEnv($('env').value)
+    ...customEnv
   };
   await fs.chmod(entry, 0o755).catch(() => {});
-  const cwd = entry.slice(0, entry.lastIndexOf('/')) || '/';
+  const cwd = customEnv.ZT_GAMEDIR || entry.slice(0, entry.lastIndexOf('/')) || '/';
   log('Executando: ' + [entry, ...args].join(' ') + ' · cwd=' + cwd);
   processHandle = sys.spawn([entry, ...args], { env, cwd, pty: { cols: 120, rows: 40, encoding: 'utf-8' } });
   processHandle.pty.addEventListener('data', event => log(event.data));
