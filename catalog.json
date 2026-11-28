@@ -1,23 +1,26 @@
 {
-  "games": [
-    {
-      "title": "Super Mario Advance 4: Super Mario Bros. 3",
-      "system": "gba",
-      "url": "./games/super-mario-advance-4-gba.zip",
-      "description": "Aventura clássica de plataforma para Game Boy Advance."
-    },
-    {
-      "title": "Crash Bandicoot (USA)",
-      "system": "psx",
-      "url": "https://vulkangames-roms.enzolas140.workers.dev/ps1/crash-bandicoot.chd",
-      "description": "Crash Bandicoot para PlayStation (USA), em CHD, servido pelo gateway privado do VulkanGames."
-    },
-    {
-      "title": "Five Nights at Freddy's",
-      "system": "html",
-      "type": "html",
-      "url": "./fnaf.html",
-      "description": "Sobreviva às noites na pizzaria e jogue diretamente no navegador."
-    }
-  ]
+    "games":  [
+                  {
+                      "title":  "Super Mario Advance 4: Super Mario Bros. 3",
+                      "system":  "gba",
+                      "url":  "./games/super-mario-advance-4-gba.zip",
+                      "description":  "Aventura clássica de plataforma para Game Boy Advance.",
+                      "cover":  "./covers/mario.webp"
+                  },
+                  {
+                      "title":  "Crash Bandicoot (USA)",
+                      "system":  "psx",
+                      "url":  "https://vulkangames-roms.enzolas140.workers.dev/ps1/crash-bandicoot.chd",
+                      "description":  "Crash Bandicoot para PlayStation (USA), em CHD, servido pelo gateway privado do VulkanGames.",
+                      "cover":  "./covers/crash.webp"
+                  },
+                  {
+                      "title":  "Five Nights at Freddy\u0027s",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./fnaf.html",
+                      "description":  "Sobreviva às noites na pizzaria e jogue diretamente no navegador.",
+                      "cover":  "./covers/fnaf.webp"
+                  }
+              ]
 }
