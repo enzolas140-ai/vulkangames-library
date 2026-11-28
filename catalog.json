@@ -5,14 +5,14 @@
                       "system":  "gba",
                       "url":  "./games/super-mario-advance-4-gba.zip",
                       "description":  "Aventura clássica de plataforma para Game Boy Advance.",
-                      "cover":  "./covers/mario.webp"
+                      "cover":  "./covers/mario.webp?v=b4682f7"
                   },
                   {
                       "title":  "Crash Bandicoot (USA)",
                       "system":  "psx",
                       "url":  "https://vulkangames-roms.enzolas140.workers.dev/ps1/crash-bandicoot.chd",
                       "description":  "Crash Bandicoot para PlayStation (USA), em CHD, servido pelo gateway privado do VulkanGames.",
-                      "cover":  "./covers/crash.webp"
+                      "cover":  "./covers/crash.webp?v=b4682f7"
                   },
                   {
                       "title":  "Five Nights at Freddy\u0027s",
@@ -20,7 +20,7 @@
                       "type":  "html",
                       "url":  "./fnaf.html",
                       "description":  "Sobreviva às noites na pizzaria e jogue diretamente no navegador.",
-                      "cover":  "./covers/fnaf.webp"
+                      "cover":  "./covers/fnaf.webp?v=b4682f7"
                   }
               ]
 }
