@@ -71,3 +71,16 @@ Edite `catalog.json`:
 }
 ```
 URLs remotas precisam permitir acesso público e CORS quando necessário. GitHub não é indicado para armazenar ROMs grandes.
+
+
+## Central de emuladores
+
+A página `emulators/` separa os emuladores da biblioteca de jogos. O TabStationToo (PCSX2 para WebAssembly) é preparado pelo workflow de publicação dentro de `emulators/ps2/`, com o código-fonte e as licenças GPL-3.0 correspondentes.
+
+- Emuladores: https://enzolas140-ai.github.io/vulkangames-library/emulators/
+- Configurações: https://enzolas140-ai.github.io/vulkangames-library/emulators/settings.html
+- O modo de abertura pode ser configurado como página dedicada ou janela incorporada na central.
+- Idioma português/inglês traduz as páginas VulkanGames; a interface interna do TabStationToo permanece em inglês no upstream atual.
+- Renderizador, resolução e filtro são gravados nas mesmas chaves locais usadas pelo TabStationToo (`pcsx2web.renderer`, `pcsx2web.upscale`, `pcsx2web.picture`).
+- A RAM é gerenciada automaticamente pelo navegador/WebAssembly. O site não tenta reservar nem limitar RAM física; quando o navegador oferece suporte, a tela de configurações pode mostrar uma estimativa.
+- O TabStationToo é experimental e requer BIOS de PS2 e imagens de disco obtidas pelo usuário de cópias próprias. O site não distribui esses arquivos.
