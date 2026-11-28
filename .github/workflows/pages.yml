@@ -75,7 +75,7 @@ jobs:
             /home/runner/.cache/gex
             /tmp/stellite-gex/target
             /tmp/stellite-gex/runtime/node_modules
-          key: gex-arm64-${{ runner.os }}-${{ hashFiles('arm64-runtime.lock') }}
+          key: gex-arm64-v2-${{ runner.os }}-${{ hashFiles('arm64-runtime.lock') }}
           restore-keys: |
             gex-arm64-${{ runner.os }}-
 
