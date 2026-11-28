@@ -1,0 +1,5 @@
+Upstream project: https://github.com/TabStationToo/TabStationToo
+Source branch: wasm
+Source commit: d76ba9ff3e94093e6982408f08329b40cb553141
+License: GNU GPL-3.0
+WebAssembly assets: https://tabstationtoo.github.io/TabStationToo/

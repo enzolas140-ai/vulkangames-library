@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131c">
+<title>VulkanGames — Linux ARM64 experimental</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0e15;--panel:#151b29;--line:#2a354a;--muted:#a8b2c5;--accent:#ff6b35;--text:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#2c3852 0,#0b0e15 58%);color:var(--text);font:16px/1.5 system-ui,Segoe UI,sans-serif;min-height:100vh}
+header{padding:23px max(18px,calc((100% - 1100px)/2));border-bottom:1px solid var(--line);background:#0b0e15dd}.brand{font-weight:950;letter-spacing:.04em;font-size:clamp(25px,5vw,39px)}.brand span{color:var(--accent)}header p{margin:3px 0 0;color:var(--muted)}
+main{max-width:1100px;margin:25px auto;padding:0 18px}.hero{padding:23px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(120deg,#202b40,#151b29)}h1{font-size:clamp(24px,4vw,34px);margin:0 0 5px}.muted{color:var(--muted)}.tag{display:inline-block;font-size:12px;color:#ffc59d;letter-spacing:.08em;text-transform:uppercase;border:1px solid #76513e;border-radius:100px;padding:3px 8px;margin-bottom:10px}
+.panel{margin-top:17px;padding:17px;border:1px solid var(--line);border-radius:14px;background:#121825}.row{display:flex;gap:11px;align-items:center;flex-wrap:wrap}.field{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:11px 12px;border-radius:9px;font:inherit}.field.small{max-width:340px}label{font-size:14px;color:#c3ccdb;display:block;margin:10px 0 5px}
+button,.btn{font:inherit;display:inline-flex;justify-content:center;align-items:center;border:0;border-radius:9px;padding:11px 15px;background:var(--accent);color:#1a0e09;font-weight:800;cursor:pointer;text-decoration:none}button.secondary,.btn.secondary{background:#29364d;color:var(--text);border:1px solid #40506d}button:disabled{opacity:.48;cursor:not-allowed}
+#screen{display:none;position:relative;width:100%;height:min(66vh,700px);min-height:330px;background:#030509;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px}#screen canvas{display:block;max-width:100%;max-height:100%}
+pre{margin:0;white-space:pre-wrap;word-break:break-word;background:#080b11;border:1px solid #202a3a;border-radius:9px;min-height:95px;max-height:330px;overflow:auto;padding:12px;color:#d8e1ed;font:13px/1.45 ui-monospace,Consolas,monospace}
+.notice{font-size:14px;background:#251d16;border:1px solid #624833;color:#efd0b3;padding:13px 15px;border-radius:11px;margin-top:16px}.success{color:#9ce2b2}.error{color:#ff9e9e}
+footer{max-width:1100px;margin:26px auto;padding:0 18px 30px;color:var(--muted);font-size:13px}
+@media(max-width:600px){.hero,.panel{padding:14px}#screen{min-height:270px;height:55vh}}
+</style>
+</head>
+<body>
+<header><div class="brand">VULKAN<span>GAMES</span> <small style="font-size:13px;color:#a8b2c5">/ ARM64</small></div><p>Execução experimental de programas Linux AArch64 no navegador.</p></header>
+<main>
+<section class="hero">
+  <span class="tag">Experimental · Linux AArch64</span>
+  <h1>Launcher de ports ARM64</h1>
+  <p class="muted">Carregue uma pasta ou ZIP de um port Linux ARM64, escolha o executável e inicie-o no runtime GEX. Os arquivos do jogo permanecem nesta sessão do navegador.</p>
+  <div class="row"><a class="btn secondary" href="./index.html">← Voltar à biblioteca</a><a class="btn secondary" href="https://github.com/BrowserPorts/stellite-gex/tree/95fb079c93bb1e46835e5fa6d807db5d01dd1491" target="_blank" rel="noopener">Código-fonte GEX</a></div>
+</section>
+
+<section class="panel">
+  <strong>1. Importar o port</strong>
+  <p class="muted">Selecione um ZIP ou a pasta descompactada. Procure um executável ELF de 64 bits para ARM64. APK/XAPK Android não é um port Linux.</p>
+  <div class="row">
+    <label class="btn" for="zipFile">Abrir ZIP</label><input id="zipFile" type="file" accept=".zip" hidden>
+    <label class="btn secondary" for="folderFile">Abrir pasta</label><input id="folderFile" type="file" webkitdirectory directory multiple hidden>
+    <span id="filesStatus" class="muted">Nenhum pacote carregado.</span>
+  </div>
+  <label for="entry">Executável ou script de inicialização (caminho dentro do Linux)</label>
+  <input class="field" id="entry" placeholder="/home/user/port/pasta-do-jogo/loader">
+  <label for="args">Argumentos (opcional)</label><input class="field" id="args" placeholder="ex.: --fullscreen">
+  <div class="row">
+    <div style="flex:1;min-width:220px"><label for="abi">ABI das bibliotecas</label>
+      <select id="abi" class="field"><option value="auto">Detectar automaticamente</option><option value="musl">Linux musl</option><option value="glibc">Linux glibc</option></select>
+    </div>
+    <div style="flex:2;min-width:240px"><label for="env">Variáveis de ambiente extras (uma por linha: NOME=valor)</label>
+      <textarea id="env" class="field" rows="3" placeholder="SDL_VIDEODRIVER=wayland&#10;LD_LIBRARY_PATH=/home/user/port/lib:/usr/lib"></textarea>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <strong>2. Iniciar runtime e executar</strong>
+  <p class="muted">O primeiro início baixa e compila o runtime WASM no navegador. É necessário um navegador moderno com WebAssembly; gráficos acelerados dependem de WebGPU.</p>
+  <div class="row">
+    <button id="start" type="button">Iniciar Linux ARM64</button>
+    <button id="run" type="button" class="secondary" disabled>Executar port carregado</button>
+    <button id="stop" type="button" class="secondary" disabled>Encerrar processo</button>
+    <button id="smoke" type="button" class="secondary" disabled>Testar Linux (uname)</button>
+  </div>
+  <p id="runtimeStatus" class="muted" role="status">Runtime ainda não iniciado.</p>
+  <div id="screen" aria-label="Tela do jogo"></div>
+</section>
+
+<section class="panel">
+  <div class="row" style="justify-content:space-between"><strong>Saída do sistema</strong><button class="secondary" id="clearLog" type="button">Limpar</button></div>
+  <pre id="log" aria-live="polite">VulkanGames ARM64 pronto. Importe um port para começar.</pre>
+</section>
+
+<div class="notice">
+  <strong>Limites importantes:</strong> isto executa ELF Linux AArch64, não Android. Não há suporte garantido a Bionic, JNI, APK/XAPK, serviços Android, KMSDRM ou APIs específicas do PortMaster. O Vulkan/OpenGL do convidado passa pela camada Mesa/WebGPU do GEX e precisa que o navegador ofereça WebGPU. Ports com bibliotecas ausentes, ABI incompatível, DRM ou chamadas de kernel não implementadas ainda podem falhar. Não existe compatibilidade universal para “qualquer port”.
+</div>
+</main>
+<footer>
+  Runtime GEX em conformidade com AGPL-3.0-only. <a href="https://github.com/BrowserPorts/stellite-gex/tree/95fb079c93bb1e46835e5fa6d807db5d01dd1491" target="_blank" rel="noopener">Fonte e licença</a>. Use somente software que você tem direito de executar.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script type="module">
+import { System } from './arm64/runtime/index.mjs';
+import { MemoryFilesystem } from './arm64/runtime/fs.mjs';
+import { SingleCanvas } from './arm64/runtime/windows-single.mjs';
+import { MesaGl } from './arm64/runtime/gl.mjs';
+import { Gamepads } from './arm64/runtime/input.mjs';
+import { WebAudio } from './arm64/runtime/audio.mjs';
+const $ = (id) => document.getElementById(id);
+const MAX_UPLOAD = 480 * 1024 * 1024;
+let imported = null;
+let guestRoot = '/home/user/port';
+let sys = null, fs = null, display = null, gl = null, pads = null, audio = null, processHandle = null;
+let initialized = false;
+
+function log(message) {
+  const box = $('log');
+  box.textContent += (box.textContent ? '\n' : '') + String(message);
+  box.scrollTop = box.scrollHeight;
+}
+function setStatus(message, kind = '') {
+  const el = $('runtimeStatus');
+  el.textContent = message;
+  el.className = kind ? kind : 'muted';
+}
+function safePath(value) {
+  const parts = String(value).replace(/\\/g, '/').split('/');
+  if (parts.some(p => p === '..')) throw new Error('O pacote contém caminho inválido com "..".');
+  return parts.filter(p => p && p !== '.').join('/');
+}
+function isArm64Elf(bytes) {
+  return bytes.length >= 20 && bytes[0] === 0x7f && bytes[1] === 0x45 && bytes[2] === 0x4c && bytes[3] === 0x46 &&
+    bytes[4] === 2 && new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint16(18, true) === 183;
+}
+function elfInterpreter(bytes) {
+  try {
+    const d = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    if (!isArm64Elf(bytes) || bytes.length < 64) return '';
+    const off = Number(d.getBigUint64(32, true)), size = d.getUint16(54, true), count = d.getUint16(56, true);
+    if (!Number.isSafeInteger(off) || size < 56) return '';
+    for (let i = 0; i < count; i++) {
+      const at = off + i * size;
+      if (at + size > bytes.length) break;
+      if (d.getUint32(at, true) !== 3) continue;
+      const start = Number(d.getBigUint64(at + 8, true)), n = Number(d.getBigUint64(at + 32, true));
+      if (!Number.isSafeInteger(start) || !Number.isSafeInteger(n) || start + n > bytes.length) return '';
+      return new TextDecoder().decode(bytes.subarray(start, start + n)).replace(/\0.*$/, '');
+    }
+  } catch {}
+  return '';
+}
+function detectAbi(bytes) {
+  const p = elfInterpreter(bytes);
+  if (p.includes('/system/bin/linker') || p.includes('linker64')) return 'android';
+  if (p.includes('musl')) return 'musl';
+  if (p.includes('ld-linux') || p.includes('ld-')) return 'glibc';
+  return 'unknown';
+}
+function detectEntry(files) {
+  const candidates = Object.entries(files).filter(([path, bytes]) => isArm64Elf(bytes));
+  const score = ([path, bytes]) => {
+    const name = path.toLowerCase();
+    const interpreter = elfInterpreter(bytes);
+    return (name.endsWith('.so') || name.includes('/lib/')) ? 100 :
+      interpreter.includes('/system/bin/linker') ? 80 :
+      /(^|\/)(start|run|launch|game|loader)([-_.]|$)/.test(name) ? 0 :
+      interpreter ? 10 : 30;
+  };
+  candidates.sort((a, b) => score(a) - score(b));
+  if (!candidates.length) return null;
+  const [path, bytes] = candidates[0];
+  return { path, abi: detectAbi(bytes), alternatives: candidates.length };
+}
+function parseArgs(raw) {
+  const out = [];
+  String(raw || '').replace(/"([^"]*)"|'([^']*)'|(\S+)/g, (_, a, b, c) => { out.push(a ?? b ?? c); return ''; });
+  return out;
+}
+function parseEnv(raw) {
+  const env = {};
+  for (const line of String(raw || '').split(/\r?\n/)) {
+    const row = line.trim();
+    if (!row || row.startsWith('#')) continue;
+    const at = row.indexOf('=');
+    if (at < 1) throw new Error('Variável de ambiente inválida: ' + row);
+    const key = row.slice(0, at).trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) throw new Error('Nome de variável inválido: ' + key);
+    env[key] = row.slice(at + 1);
+  }
+  return env;
+}
+async function importFiles(fileRows, label) {
+  let total = 0;
+  const map = {};
+  let firstRoot = '';
+  for (const row of fileRows) {
+    const relative = safePath(row.path);
+    if (!relative || row.file.size === 0) continue;
+    total += row.file.size;
+    if (total > MAX_UPLOAD) throw new Error('Pacote maior que 480 MiB. Divida o pacote ou remova arquivos desnecessários.');
+    if (firstRoot === '') firstRoot = relative.split('/')[0];
+    const path = guestRoot + '/' + relative;
+    map[path] = await row.read();
+  }
+  if (!Object.keys(map).length) throw new Error('Nenhum arquivo válido foi encontrado.');
+  imported = { files: map, label };
+  const detected = detectEntry(map);
+  if (detected) {
+    $('entry').value = detected.path;
+    if (detected.abi === 'musl') $('abi').value = 'musl';
+    else if (detected.abi === 'glibc') $('abi').value = 'glibc';
+    else if (detected.abi === 'android') $('abi').value = 'auto';
+  }
+  const zombieLoader = Object.keys(map).find(path => /\/zombie-tsunami\/bin\/zombie-tsunami-loader$/i.test(path));
+  if (zombieLoader) {
+    const gameDir = zombieLoader.replace(/\/bin\/zombie-tsunami-loader$/i, '');
+    $('entry').value = zombieLoader;
+    $('abi').value = 'glibc';
+    $('env').value = [
+      'ZT_GAMEDIR=' + gameDir,
+      'ZT_LOG_FILE=' + gameDir + '/logs/web-run.log',
+      'HOME=' + gameDir,
+      'XDG_CONFIG_HOME=' + gameDir + '/save',
+      'XDG_DATA_HOME=' + gameDir + '/save',
+      'SDL_VIDEODRIVER=x11',
+      'SDL_VIDEO_X11_NODIRECTCOLOR=1',
+      'LD_LIBRARY_PATH=' + gameDir + '/lib:' + gameDir + '/payload:/usr/lib/gex-glibc:/usr/lib/aarch64-linux-gnu:/lib/aarch64-linux-gnu:/usr/lib:/lib'
+    ].join('\\n');
+    log('Perfil Zombie Tsunami detectado: ABI glibc, SDL2/X11→WebGPU e diretórios do port configurados.');
+  }
+  $('filesStatus').textContent = Object.keys(map).length + ' arquivos · ' + (total / 1048576).toFixed(1) + ' MiB · ' + label;
+  $('run').disabled = !initialized || !detected;
+  log('Pacote importado: ' + label + ' (' + Object.keys(map).length + ' arquivos).');
+  if (detected?.abi === 'android') log('Aviso: ELF identificado como Android/Bionic. Este runtime não implementa o ambiente Android.');
+  else if (detected) log('ELF AArch64 encontrado: ' + detected.path + ' · ABI: ' + (detected.abi || 'não identificada'));
+  else log('Nenhum ELF AArch64 detectado automaticamente. Pode escolher manualmente um script Linux.');
+}
+$('zipFile').addEventListener('change', async e => {
+  try {
+    const file = e.target.files?.[0]; if (!file) return;
+    setStatus('Lendo ZIP…');
+    if (file.size > MAX_UPLOAD) throw new Error('ZIP maior que 480 MiB.');
+    const zip = await JSZip.loadAsync(file);
+    const rows = [];
+    for (const entry of Object.values(zip.files)) {
+      if (entry.dir) continue;
+      const path = safePath(entry.name);
+      if (!path) continue;
+      rows.push({ path, file: { size: entry._data?.uncompressedSize ?? 0 }, read: () => entry.async('uint8array') });
+    }
+    await importFiles(rows, file.name);
+    setStatus('Pacote pronto para iniciar.');
+  } catch (err) { setStatus(err.message, 'error'); log('ERRO: ' + err.message); }
+  finally { e.target.value = ''; }
+});
+$('folderFile').addEventListener('change', async e => {
+  try {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const rows = files.map(file => ({
+      path: safePath(file.webkitRelativePath || file.name),
+      file,
+      read: () => file.arrayBuffer().then(b => new Uint8Array(b))
+    }));
+    await importFiles(rows, files[0].webkitRelativePath?.split('/')[0] || 'pasta local');
+    setStatus('Pasta importada e pronta.');
+  } catch (err) { setStatus(err.message, 'error'); log('ERRO: ' + err.message); }
+  finally { e.target.value = ''; }
+});
+
+async function fetchBytes(url, label) {
+  const response = await fetch(url, { cache: 'force-cache' });
+  if (!response.ok) throw new Error(label + ': HTTP ' + response.status);
+  return new Uint8Array(await response.arrayBuffer());
+}
+async function readGuestGraphics() {
+  const graphics = {};
+  for (const [source, target] of [
+    ['./arm64/guestfs/libEGL.so.1', '/usr/lib/gex-musl/libEGL.so.1'],
+    ['./arm64/guestfs/libGLESv2.so.2', '/usr/lib/gex-musl/libGLESv2.so.2'],
+    ['./arm64/guestfs/glibc/libEGL.so.1', '/usr/lib/gex-glibc/libEGL.so.1'],
+    ['./arm64/guestfs/glibc/libGLESv2.so.2', '/usr/lib/gex-glibc/libGLESv2.so.2'],
+    ['./arm64/guestfs/glibc/libGL.so.1', '/usr/lib/gex-glibc/libGL.so.1']
+  ]) {
+    try { graphics[target] = await fetchBytes(source, source); } catch (e) {
+      if (source.includes('/glibc/')) continue;
+      throw e;
+    }
+  }
+  return graphics;
+}
+async function bootRuntime() {
+  if (initialized) return;
+  if (!navigator.gpu) throw new Error('Este navegador não expõe WebGPU. Use uma versão atual do Chrome ou Edge com aceleração gráfica ativada.');
+  sys = new System({ arch: 'aarch64', baseUrl: new URL('./arm64/runtime/', location.href).href, xcache: true });
+  systemCreated = true;
+  fs = new MemoryFilesystem(sys, { max: MAX_UPLOAD + 64 * 1024 * 1024 });
+  $('screen').style.display = 'block';
+  display = new SingleCanvas(sys, { container: $('screen'), x11: 'rootless' });
+  gl = new MesaGl(sys);
+  pads = new Gamepads(sys);
+  // Constructed synchronously from the Start button gesture to unlock browser audio.
+  audio = new WebAudio(sys);
+  await fs.addTar(new URL('./arm64/rootfs/busybox.tar', location.href));
+  await fs.addTar(new URL('./arm64/rootfs/glibc-runtime.tar', location.href));
+  const graphics = await readGuestGraphics();
+  if (Object.keys(graphics).length) await fs.addFiles(graphics);
+  if (imported) await fs.addFiles(imported.files);
+  await sys.boot();
+  initialized = true;
+  $('screen').style.display = 'block';
+  $('run').disabled = !imported;
+  $('smoke').disabled = false;
+  $('start').disabled = true;
+  $('stop').disabled = true;
+  setStatus('Linux ARM64 iniciou. Testando o userspace…', 'success');
+  const smoke = await sys.run(['/bin/uname', '-m'], { encoding: 'utf-8' });
+  log('Teste do kernel/ELF ARM64: ' + smoke.stdout.trim() + ' (exit ' + smoke.code + ')');
+  if (smoke.code !== 0 || !smoke.stdout.toLowerCase().includes('aarch64')) throw new Error('O teste básico não confirmou aarch64.');
+  setStatus('Runtime ARM64 iniciado e teste básico aprovado.', 'success');
+}
+let systemCreated = false;
+async function start() {
+  $('start').disabled = true;
+  try {
+    setStatus('Preparando runtime Linux ARM64…');
+    await bootRuntime();
+    log('Runtime GEX pronto. OpenGL/OpenGL ES será iniciado sob demanda.');
+    if (imported) await runPort();
+  } catch (err) {
+    setStatus('Falha ao iniciar: ' + err.message, 'error');
+    log('ERRO DE INICIALIZAÇÃO: ' + (err.stack || err.message));
+    $('start').disabled = systemCreated || initialized;
+    if (systemCreated && !initialized) log('O runtime só pode ser criado uma vez nesta aba. Recarregue a página para tentar novamente.');
+  }
+}
+async function runPort() {
+  if (!initialized || !imported) throw new Error('Importe uma pasta ou ZIP primeiro.');
+  let entry = $('entry').value.trim();
+  if (!entry.startsWith('/')) entry = guestRoot + '/' + safePath(entry);
+  else entry = '/' + safePath(entry);
+  if (!entry || entry === '/') throw new Error('Informe o caminho do executável.');
+  const args = parseArgs($('args').value);
+  const abi = $('abi').value;
+  const abiPath = abi === 'glibc' ? '/usr/lib/gex-glibc' : '/usr/lib/gex-musl';
+  const customEnv = parseEnv($('env').value);
+  const env = {
+    HOME: '/home/user',
+    PATH: '/bin:/usr/bin:/usr/local/bin',
+    TERM: 'linux',
+    SDL_VIDEODRIVER: 'x11',
+    LD_LIBRARY_PATH: abiPath + ':/usr/lib/aarch64-linux-gnu:/lib/aarch64-linux-gnu:/usr/lib:/lib:' + entry.slice(0, entry.lastIndexOf('/')),
+    ...display.env,
+    ...pads.env,
+    ...customEnv
+  };
+  await fs.chmod(entry, 0o755).catch(() => {});
+  const cwd = customEnv.ZT_GAMEDIR || entry.slice(0, entry.lastIndexOf('/')) || '/';
+  log('Executando: ' + [entry, ...args].join(' ') + ' · cwd=' + cwd);
+  processHandle = sys.spawn([entry, ...args], { env, cwd, pty: { cols: 120, rows: 40, encoding: 'utf-8' } });
+  processHandle.pty.addEventListener('data', event => log(event.data));
+  processHandle.addEventListener('error', event => log('Falha ao criar processo: ' + event.error?.message));
+  $('stop').disabled = false;
+  await processHandle.started;
+  log('Processo iniciado · PID ' + await processHandle.started);
+  processHandle.exited.then(status => {
+    log('Processo terminou · código ' + status.code + (status.signal ? ' · sinal ' + status.signal : ''));
+    $('stop').disabled = true;
+    processHandle = null;
+  }).catch(err => {
+    log('Processo encerrou com erro: ' + err.message);
+    $('stop').disabled = true;
+    processHandle = null;
+  });
+}
+$('start').addEventListener('click', start);
+$('run').addEventListener('click', async () => {
+  $('run').disabled = true;
+  try { await runPort(); } catch (e) { log('ERRO: ' + e.message); }
+  finally { $('run').disabled = !initialized || !imported; }
+});
+$('stop').addEventListener('click', () => { processHandle?.kill('SIGTERM'); $('stop').disabled = true; });
+$('smoke').addEventListener('click', async () => {
+  try { const r = await sys.run(['/bin/uname', '-a'], { encoding: 'utf-8' }); log('uname -a: ' + r.stdout.trim()); }
+  catch (e) { log('Falha no teste Linux: ' + e.message); }
+});
+$('clearLog').addEventListener('click', () => { $('log').textContent = ''; });
+window.addEventListener('beforeunload', () => { try { pads?.close(); audio?.close(); sys?.shutdown(); } catch {} });
+</script>
+</body>
+</html>

@@ -16,6 +16,19 @@ Biblioteca web de emulação retrô no navegador com EmulatorJS. Use somente ROM
 - PlayStation: `psx`, padrão PCSX-ReARMed; arquivos CHD selecionam Mednafen PSX HW.
 - Nintendo DS: `nds`, núcleo melonDS.
 
+## Ports Linux ARM64 (experimental)
+
+A rota **Ports Linux ARM64 (experimental)** abre um launcher baseado no runtime GEX (Linux AArch64 em WebAssembly). Ele aceita ZIP ou pasta local, monta os arquivos em um userspace Linux e inicia um ELF AArch64 ou script Linux. Gráficos convidados OpenGL/OpenGL ES passam pela camada Mesa do GEX e pelo WebGPU do navegador; áudio usa Web Audio e controles usam a Gamepad API.
+
+- Requer navegador moderno com WebGPU para gráficos acelerados (Chrome/Edge atual recomendado).
+- O perfil de Zombie Tsunami reconhece o loader ELF AArch64 do pacote PortMaster, usa ABI glibc, inclui dependências ARM64 de SDL2/FreeType/zlib e tenta selecionar SDL2/X11 para desenhar pelo Xwayland/Mesa/WebGPU.
+- O loader do port não é um APK: ele carrega sua própria biblioteca JNI e assets. O perfil ignora o script PortMaster e abre o loader diretamente, com a pasta de dados do jogo configurada.
+- Não emula o DRM/KMS do dispositivo, nem garante que a inicialização SDL2, FMOD ou chamadas específicas do loader funcionem no GEX. APK/XAPK Android comuns, Bionic e serviços Android continuam fora do escopo.
+- Cada port precisa das bibliotecas, assets e ABI corretos. Isso não significa que todo executável ARM64 funcione.
+- O runtime é montado automaticamente pelo workflow de Pages usando a revisão registrada em `arm64-runtime.lock`. O código e as licenças GEX são publicados em `arm64/runtime/`; GEX é AGPL-3.0-only.
+
+**Status:** camada genérica Linux AArch64 experimental. O launcher contém um teste inicial `uname -m`; a compatibilidade de cada jogo ainda precisa ser comprovada individualmente. Em particular, um port com bibliotecas Android/JNI não passa a ser compatível apenas por ter um loader ARM64.
+
 ## Formatos reconhecidos
 - GB/GBC: `.gb`, `.gbc`
 - GBA: `.gba`
@@ -32,7 +45,7 @@ Biblioteca web de emulação retrô no navegador com EmulatorJS. Use somente ROM
 - ROMs locais ficam no navegador e não são enviadas ao servidor.
 - Para discos PS1, selecione CUE/CCD/M3U e os arquivos associados juntos; a página cria um ZIP preservando os nomes para o EmulatorJS extrair.
 - BIOS pode ser selecionada individualmente ou em conjunto (o conjunto é empacotado em ZIP). O suporte a pacote depende do núcleo. PlayStation normalmente requer BIOS compatível. melonDS requer BIOS ARM7, BIOS ARM9 e firmware para o modo BIOS.
-- O catálogo só hospeda jogos comerciais quando há autorização explícita para distribuição pública. Os demais jogos e BIOS não são fornecidos e devem ser carregados localmente pelo visitante, conforme os direitos de uso.
+- O site não fornece jogos comerciais nem BIOS.
 
 ## Controles, áudio e saves
 O menu do EmulatorJS oferece mapeamento de teclado/gamepad, controles virtuais, volume, tela cheia e funções de save/load conforme o núcleo. O navegador/sistema operacional deve reconhecer o controle; áudio pode exigir interação inicial para liberar autoplay. IDs numéricos estáveis por jogo separam os dados de salvamento.
@@ -58,3 +71,16 @@ Edite `catalog.json`:
 }
 ```
 URLs remotas precisam permitir acesso público e CORS quando necessário. GitHub não é indicado para armazenar ROMs grandes.
+
+
+## Central de emuladores
+
+A página `emulators/` separa os emuladores da biblioteca de jogos. O TabStationToo (PCSX2 para WebAssembly) é preparado pelo workflow de publicação dentro de `emulators/ps2/`, com o código-fonte e as licenças GPL-3.0 correspondentes.
+
+- Emuladores: https://enzolas140-ai.github.io/vulkangames-library/emulators/
+- Configurações: https://enzolas140-ai.github.io/vulkangames-library/emulators/settings.html
+- O modo de abertura pode ser configurado como página dedicada ou janela incorporada na central.
+- Idioma português/inglês traduz as páginas VulkanGames; a interface interna do TabStationToo permanece em inglês no upstream atual.
+- Renderizador, resolução e filtro são gravados nas mesmas chaves locais usadas pelo TabStationToo (`pcsx2web.renderer`, `pcsx2web.upscale`, `pcsx2web.picture`).
+- A RAM é gerenciada automaticamente pelo navegador/WebAssembly. O site não tenta reservar nem limitar RAM física; quando o navegador oferece suporte, a tela de configurações pode mostrar uma estimativa.
+- O TabStationToo é experimental e requer BIOS de PS2 e imagens de disco obtidas pelo usuário de cópias próprias. O site não distribui esses arquivos.

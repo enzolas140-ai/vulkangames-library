@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131c"><title>VulkanGames — Configurações</title>
+<script src="./isolation.js"></script>
+<script src="./coi-serviceworker.js"></script>
+<style>
+:root{color-scheme:dark;--panel:#17151c;--line:#482431;--muted:#b6b0ba;--accent:#c72e45;--text:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#3b1b27 0,#0b0d12 58%);color:var(--text);font:16px/1.5 system-ui,Segoe UI,sans-serif;min-height:100vh}
+header{padding:24px max(18px,calc((100% - 900px)/2));border-bottom:1px solid var(--line);background:#0b0d12ed}
+.brand{font-weight:950;letter-spacing:.04em;font-size:clamp(26px,5vw,43px)}.brand span{color:var(--accent)}header p{margin:3px 0 0;color:var(--muted)}
+.site-nav{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.site-nav a{display:inline-flex;padding:8px 13px;border:1px solid #60303d;border-radius:8px;color:var(--text);background:#211820;text-decoration:none;font-weight:750;font-size:14px}.site-nav a.active{background:#3b1b27;border-color:var(--accent)}
+main{max-width:900px;margin:26px auto;padding:0 18px}h1{font-size:clamp(24px,4vw,34px);margin:0 0 6px}.muted{color:var(--muted)}
+.panel{margin-top:17px;padding:18px;border:1px solid var(--line);border-radius:14px;background:#121825}
+.field{display:flex;flex-direction:column;gap:6px;margin:14px 0}.field span{font-weight:750}.field small{color:var(--muted);font-weight:400}
+select,input,button,.btn{font:inherit}select,input[type=range]{background:var(--panel);border:1px solid #60303d;color:var(--text);border-radius:9px;padding:11px 12px;max-width:100%;width:100%}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:8px;padding:11px 16px;background:var(--accent);color:white;font-weight:800;cursor:pointer;text-decoration:none;min-height:44px}
+button.secondary,.btn.secondary{background:#251923;color:var(--text);border:1px solid #60303d}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.notice{margin-top:15px;padding:14px 16px;border:1px solid #59432e;background:#261d16;border-radius:12px;color:#ebc9a9;font-size:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}#saveStatus,#memoryStatus{font-size:13px;color:var(--muted);margin-top:9px}
+@media(max-width:620px){main{padding:0 12px}.grid{grid-template-columns:1fr}.panel{padding:14px}}
+</style></head>
+<body>
+<header><div class="brand">VULKAN<span>GAMES</span> <small style="font-size:14px;color:#a8b2c5">ARCADE</small></div><p>Preferências gerais dos emuladores.</p>
+<nav class="site-nav" aria-label="Navegação principal"><a href="../">Jogos</a><a href="./">Emuladores</a><a class="active" href="./settings.html">Configurações</a></nav></header>
+<main>
+<h1>Configurações</h1><p class="muted">As preferências ficam salvas neste navegador e são usadas quando o TabStationToo é iniciado.</p>
+<section class="panel">
+<h2>Interface</h2>
+<div class="grid">
+<label class="field"><span>Idioma do site</span><select id="language"><option value="pt-BR">Português (Brasil)</option><option value="en">English</option></select><small>Traduz a central de emuladores e as configurações. O catálogo principal permanece em português.</small></label>
+<label class="field"><span>Abrir jogos de PS2 em</span><select id="launchMode"><option value="page">Outra página (dedicada)</option><option value="embedded">Janela dentro da página Emuladores</option></select><small>Você pode mudar isso a qualquer momento.</small></label>
+</div>
+</section>
+<section class="panel">
+<h2>Desempenho e imagem — PlayStation 2</h2>
+<label class="field"><span>Perfil rápido</span><select id="profile">
+<option value="balanced">Equilibrado / automático</option>
+<option value="performance">Desempenho (GPU, resolução nativa)</option>
+<option value="quality">Qualidade visual (GPU, 2×)</option>
+<option value="compatibility">Compatibilidade (renderizador por software)</option>
+<option value="custom">Personalizado</option>
+</select><small>O perfil altera somente as opções abaixo; não aumenta a potência real do computador.</small></label>
+<div class="grid">
+<label class="field"><span>Renderizador gráfico</span><select id="renderer"><option value="auto">Automático (WebGPU se disponível, fallback)</option><option value="gpu">GPU / WebGPU</option><option value="sw">Software (sem renderização GPU)</option></select></label>
+<label class="field"><span>Resolução interna</span><select id="upscale"><option value="1">1× — nativa</option><option value="2">2× — maior definição</option></select></label>
+</div>
+<label class="field"><span>Filtro de imagem</span><select id="picture"><option value="smooth">Suave</option><option value="crisp">Nítido / Crisp</option><option value="crt">CRT</option><option value="crt2">CRT com brilho e rastros</option></select></label>
+<div class="notice">“GPU / WebGPU” depende do suporte do navegador e do dispositivo. “Software” pode melhorar compatibilidade em alguns casos, mas também pode ficar mais lento. Resolução 2× aumenta a carga de GPU e memória.</div>
+</section>
+<section class="panel">
+<h2>Memória RAM</h2>
+<p>Uso de RAM: <strong>automático, gerenciado pelo navegador e pelo WebAssembly</strong>.</p>
+<p class="muted">Páginas web não podem reservar uma quantidade fixa de RAM física nem impor um limite confiável de memória ao processo do navegador. Feche outras abas e escolha resolução nativa se houver travamentos por falta de memória.</p>
+<button id="measureMemory" class="secondary" type="button">Ver estimativa de memória desta página</button>
+<div id="memoryStatus" aria-live="polite">Nenhuma medição executada.</div>
+</section>
+<div class="actions"><button id="save" type="button">Salvar configurações</button><a class="btn secondary" href="./">Voltar aos emuladores</a></div>
+<div id="saveStatus" role="status"></div>
+<div class="notice"><strong>Observação:</strong> o TabStationToo tem controles próprios durante a emulação, incluindo underclock por jogo, controle, áudio e modos de imagem. O underclock é específico por jogo e deve ser ajustado dentro do emulador. As opções aqui são preferências de inicialização; alterações gráficas serão aplicadas na próxima vez que o PS2 for aberto.</div>
+</main>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const keys={renderer:'pcsx2web.renderer',upscale:'pcsx2web.upscale',picture:'pcsx2web.picture'};
+ function get(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
+ function set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+ function inferProfile(){
+   const r=get(keys.renderer,'auto'),u=get(keys.upscale,'1'),p=get(keys.picture,'smooth');
+   if(r==='sw'&&u==='1'&&p==='smooth')return 'compatibility';
+   if(r==='gpu'&&u==='1'&&p==='crisp')return 'performance';
+   if(r==='gpu'&&u==='2'&&p==='crisp')return 'quality';
+   if(r==='auto'&&u==='1'&&p==='smooth')return 'balanced';
+   return 'custom';
+ }
+ function load(){
+   $('language').value=get('vg.uiLanguage','pt-BR');
+   $('launchMode').value=get('vg.launchMode','page');
+   $('renderer').value=get(keys.renderer,'auto');
+   $('upscale').value=get(keys.upscale,'1');
+   $('picture').value=get(keys.picture,'smooth');
+   $('profile').value=inferProfile();
+   applyLanguage();
+ }
+ function profileChanged(){
+   const p=$('profile').value;
+   if(p==='balanced'){$('renderer').value='auto';$('upscale').value='1';$('picture').value='smooth'}
+   if(p==='performance'){$('renderer').value='gpu';$('upscale').value='1';$('picture').value='crisp'}
+   if(p==='quality'){$('renderer').value='gpu';$('upscale').value='2';$('picture').value='crisp'}
+   if(p==='compatibility'){$('renderer').value='sw';$('upscale').value='1';$('picture').value='smooth'}
+ }
+ function applyLanguage(){
+   const en=$('language').value==='en';
+   document.documentElement.lang=en?'en':'pt-BR';
+   document.title=en?'VulkanGames — Settings':'VulkanGames — Configurações';
+   document.querySelector('header p').textContent=en?'General emulator preferences.':'Preferências gerais dos emuladores.';
+   document.querySelector('main h1').textContent=en?'Settings':'Configurações';
+   const nav=document.querySelectorAll('.site-nav a');
+   nav[0].textContent=en?'Games':'Jogos';nav[1].textContent=en?'Emulators':'Emuladores';nav[2].textContent=en?'Settings':'Configurações';
+   const heads=document.querySelectorAll('section.panel h2');
+   heads[0].textContent=en?'Interface':'Interface';
+   heads[1].textContent=en?'Performance and image — PlayStation 2':'Desempenho e imagem — PlayStation 2';
+   heads[2].textContent=en?'RAM':'Memória RAM';
+   const labels=document.querySelectorAll('.field > span');
+   const labelPt=['Idioma do site','Abrir jogos de PS2 em','Perfil rápido','Renderizador gráfico','Resolução interna','Filtro de imagem'];
+   const labelEn=['Site language','Open PS2 games in','Quick profile','Graphics renderer','Internal resolution','Picture filter'];
+   labels.forEach((el,i)=>{if(i<labels.length)el.textContent=en?labelEn[i]:labelPt[i]});
+   const smalls=document.querySelectorAll('.field small');
+   const smallPt=['Traduz as páginas VulkanGames. A interface interna do TabStationToo continua em inglês.','Você pode mudar isso a qualquer momento.','O perfil altera somente as opções abaixo; não aumenta a potência real do computador.'];
+   const smallEn=['Translates the emulator hub and settings pages. The main game catalog remains in Portuguese.','You can change this at any time.','The profile changes only the options below; it does not increase the computer’s actual performance.'];
+   smalls.forEach((el,i)=>{if(i<3)el.textContent=en?smallEn[i]:smallPt[i]});
+   const selects=document.querySelectorAll('select');
+   const optionSets=en?[
+     ['Português (Brasil)','English'],
+     ['A separate page','An embedded window inside the Emulators page'],
+     ['Balanced / automatic','Performance (GPU, native resolution)','Visual quality (GPU, 2×)','Compatibility (software renderer)','Custom'],
+     ['Automatic (WebGPU when available, fallback)','GPU / WebGPU','Software (no GPU rendering)'],
+     ['1× — native','2× — higher definition'],
+     ['Smooth','Crisp','CRT','CRT with glow and trails']
+   ]:[
+     ['Português (Brasil)','English'],
+     ['Outra página (dedicada)','Janela dentro da página Emuladores'],
+     ['Equilibrado / automático','Desempenho (GPU, resolução nativa)','Qualidade visual (GPU, 2×)','Compatibilidade (renderizador por software)','Personalizado'],
+     ['Automático (WebGPU se disponível, fallback)','GPU / WebGPU','Software (sem renderização GPU)'],
+     ['1× — nativa','2× — maior definição'],
+     ['Suave','Nítido / Crisp','CRT','CRT com brilho e rastros']
+   ];
+   selects.forEach((el,i)=>{if(optionSets[i])el.querySelectorAll('option').forEach((opt,j)=>{if(optionSets[i][j])opt.textContent=optionSets[i][j]})});
+   const paragraphs=document.querySelectorAll('section.panel p');
+   paragraphs[0].textContent=en?'RAM use: automatic, managed by the browser and WebAssembly.':'Uso de RAM: automático, gerenciado pelo navegador e pelo WebAssembly';
+   paragraphs[1].textContent=en?'Web pages cannot reserve a fixed amount of physical RAM or impose a reliable memory limit on the browser process. Close other tabs and choose native resolution if you experience out-of-memory problems.':'Páginas web não podem reservar uma quantidade fixa de RAM física nem impor um limite confiável de memória ao processo do navegador. Feche outras abas e escolha resolução nativa se houver travamentos por falta de memória.';
+   document.querySelectorAll('.notice')[0].textContent=en?'GPU / WebGPU depends on browser and device support. Software rendering may improve compatibility in some cases, but can also be slower. 2× resolution increases GPU and memory load.':'“GPU / WebGPU” depende do suporte do navegador e do dispositivo. “Software” pode melhorar compatibilidade em alguns casos, mas também pode ficar mais lento. Resolução 2× aumenta a carga de GPU e memória.';
+   $('measureMemory').textContent=en?'Estimate memory used by this page':'Ver estimativa de memória desta página';
+   $('save').textContent=en?'Save settings':'Salvar configurações';
+   document.querySelector('.actions a').textContent=en?'Back to emulators':'Voltar aos emuladores';
+   document.querySelectorAll('.notice')[1].innerHTML=en?'<strong>Note:</strong> TabStationToo has its own controls while emulating, including per-game underclock, controller, audio and picture modes. Underclock is specific to each game and must be adjusted inside the emulator. These settings are startup preferences; graphics changes apply the next time PS2 is opened.':'<strong>Observação:</strong> o TabStationToo tem controles próprios durante a emulação, incluindo underclock por jogo, controle, áudio e modos de imagem. O underclock é específico por jogo e deve ser ajustado dentro do emulador. As opções aqui são preferências de inicialização; alterações gráficas serão aplicadas na próxima vez que o PS2 for aberto.';
+ }
+ $('profile').addEventListener('change',profileChanged);
+ for(const id of ['renderer','upscale','picture'])$(id).addEventListener('change',()=>$('profile').value='custom');
+ $('language').addEventListener('change',applyLanguage);
+ $('save').addEventListener('click',function(){
+   set('vg.uiLanguage',$('language').value);
+   set('vg.launchMode',$('launchMode').value);
+   set(keys.renderer,$('renderer').value);
+   set(keys.upscale,$('upscale').value);
+   set(keys.picture,$('picture').value);
+   $('profile').value=inferProfile();
+   $('saveStatus').textContent=$('language').value==='en'?'Settings saved in this browser.':'Configurações salvas neste navegador.';
+ });
+ $('measureMemory').addEventListener('click',async function(){
+   $('memoryStatus').textContent=$('language').value==='en'?'Measuring…':'Medindo…';
+   try{
+     if(performance.measureUserAgentSpecificMemory){
+       const result=await performance.measureUserAgentSpecificMemory();
+       const mb=(result.bytes/1048576).toFixed(1);
+       $('memoryStatus').textContent=($('language').value==='en'?'Estimated memory reported for this page and its workers: ':'Memória estimada informada para esta página e seus workers: ')+mb+' MB. '+($('language').value==='en'?'This is not a RAM limit.':'Isto não é um limite de RAM.');
+     }else if(performance.memory&&Number.isFinite(performance.memory.usedJSHeapSize)){
+       const mb=(performance.memory.usedJSHeapSize/1048576).toFixed(1);
+       $('memoryStatus').textContent=($('language').value==='en'?'JavaScript heap estimate: ':'Estimativa do heap JavaScript: ')+mb+' MB. '+($('language').value==='en'?'Does not include all browser/GPU memory.':'Não inclui toda a memória do navegador/GPU.');
+     }else{
+       $('memoryStatus').textContent=$('language').value==='en'?'This browser does not expose a memory estimate API.':'Este navegador não disponibiliza uma API de estimativa de memória para esta página.';
+     }
+   }catch(e){$('memoryStatus').textContent=$('language').value==='en'?'The browser blocked the estimate.':'O navegador bloqueou a estimativa.'}
+ });
+ load();
+})();
+</script>
+</body></html>
