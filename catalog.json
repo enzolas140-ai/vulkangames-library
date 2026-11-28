@@ -21,6 +21,132 @@
                       "url":  "./fnaf.html",
                       "description":  "Sobreviva às noites na pizzaria e jogue diretamente no navegador.",
                       "cover":  "./covers/fnaf.webp?v=b4682f7"
+                  },
+                  {
+                      "title":  "Minecraft Eaglercraft 1.12.2",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/1.12.html",
+                      "description":  "Minecraft no navegador — versão Eaglercraft 1.12.2."
+                  },
+                  {
+                      "title":  "Minecraft Eaglercraft 1.5.2",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/1.5.html",
+                      "description":  "Minecraft no navegador — versão Eaglercraft 1.5.2."
+                  },
+                  {
+                      "title":  "Minecraft EaglercraftX 1.8",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/1.8.html",
+                      "description":  "Minecraft no navegador — versão EaglercraftX 1.8."
+                  },
+                  {
+                      "title":  "1v1.LOL",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/1v1.lol.html",
+                      "description":  "Batalhas rápidas de construção e tiro no navegador."
+                  },
+                  {
+                      "title":  "2048",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/2048.html",
+                      "description":  "Combine os blocos numéricos e tente alcançar 2048."
+                  },
+                  {
+                      "title":  "Age of War",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/ageofwar.html",
+                      "description":  "Defenda sua base e avance por diferentes eras de batalha."
+                  },
+                  {
+                      "title":  "Among Us",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/amongus.html",
+                      "description":  "Complete tarefas e descubra quem é o impostor."
+                  },
+                  {
+                      "title":  "Angry Birds",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/angrybirds.html",
+                      "description":  "Use os pássaros para derrubar as estruturas."
+                  },
+                  {
+                      "title":  "Backrooms",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/backrooms.html",
+                      "description":  "Explore corredores misteriosos e tente encontrar a saída."
+                  },
+                  {
+                      "title":  "Geometry Dash",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/geometrydash.html",
+                      "description":  "Salte obstáculos neste jogo de plataforma rítmica."
+                  },
+                  {
+                      "title":  "Geometry Dash Lite",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/geometrydashlite.html",
+                      "description":  "Versão Lite de Geometry Dash para jogar no navegador."
+                  },
+                  {
+                      "title":  "Geometry Vibes",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/geometryvibes.html",
+                      "description":  "Desvie dos obstáculos e sobreviva ao percurso."
+                  },
+                  {
+                      "title":  "Getaway Shootout",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/getawayshootout.htm",
+                      "description":  "Corrida caótica de plataforma e competição local."
+                  },
+                  {
+                      "title":  "Granny",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/granny.html",
+                      "description":  "Escape da casa sem ser encontrado."
+                  },
+                  {
+                      "title":  "Granny 2",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/granny2.html",
+                      "description":  "Sobreviva e encontre uma saída nesta sequência de terror."
+                  },
+                  {
+                      "title":  "Happy Wheels",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/happywheels.html",
+                      "description":  "Percorra pistas cheias de obstáculos e desafios físicos."
+                  },
+                  {
+                      "title":  "Johnny Trigger",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/johnnytrigger.html",
+                      "description":  "Jogo de ação arcade com alvos e disparos."
+                  },
+                  {
+                      "title":  "Moto X3M",
+                      "system":  "html",
+                      "type":  "html",
+                      "url":  "./html-games/motox3m.htm",
+                      "description":  "Corridas de moto com acrobacias, saltos e armadilhas."
                   }
               ]
 }
