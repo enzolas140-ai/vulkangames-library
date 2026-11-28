@@ -68,6 +68,16 @@ jobs:
           git -C /tmp/stellite-gex checkout --detach 95fb079c93bb1e46835e5fa6d807db5d01dd1491
           git -C /tmp/stellite-gex submodule update --init --recursive
 
+      - name: Install and verify pinned nightly kernel toolchain
+        run: |
+          set -euxo pipefail
+          rustup toolchain install nightly --profile minimal --component rust-src
+          rustup component add rust-src --toolchain nightly
+          rustc +nightly --version --verbose
+          cargo +nightly --version
+          RUST_SRC="$(rustc +nightly --print sysroot)/lib/rustlib/src/rust/library"
+          test -d "$RUST_SRC"
+
       - name: Cache GEX toolchains and build outputs
         uses: actions/cache@v4
         with:
@@ -114,6 +124,15 @@ jobs:
           fetch_pinned "x86_64-linux-musl-cross.tgz" \
             "https://github.com/musl-cc/musl.cc/releases/download/v0.0.1/x86_64-linux-musl-cross.tgz" \
             "c5d410d9f82a4f24c549fe5d24f988f85b2679b452413a9f7e5f7b956f2fe7ea"
+
+      - name: Build GEX kernel first with full diagnostics
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd /tmp/stellite-gex
+          rm -rf target/shared-kernel
+          mkdir -p runtime/files/out/gex
+          CARGO_TERM_COLOR=never RUST_BACKTRACE=1 sh -x hosts/kernel/build.sh
 
       - name: Build GEX single-thread browser runtime
         run: |
