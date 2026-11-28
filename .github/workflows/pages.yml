@@ -1,4 +1,4 @@
-name: Deploy VulkanGames to GitHub Pages
+name: Deploy VulkanGames and build ARM64 runtime
 on:
   push:
     branches: [main]
@@ -15,22 +15,104 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
-      - name: Checkout
+      - name: Checkout VulkanGames
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
       - name: Run emulator integration smoke tests
-        run: node --test
+        run: |
+          node --test
+          sed -n '/<script type="module">/,/<\/script>/p' arm64.html | sed '1d;$d' > /tmp/arm64-launcher.mjs
+          node --check /tmp/arm64-launcher.mjs
+
+      - name: Install native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build meson pkg-config             python3 python3-mako python3-yaml python3-packaging python3-setuptools             bison flex zstd libtool autoconf automake gettext wget curl             libffi-dev zlib1g-dev libexpat1-dev libfontconfig1-dev libfreetype6-dev             libx11-dev libxext-dev libxfixes-dev libxdamage-dev libxrandr-dev             libxrender-dev libxi-dev libxkbfile-dev libxkbcommon-dev libxkbcommon-x11-dev             libxfont-dev libxfont2-dev libxshmfence-dev libxss-dev libxtst-dev             libxcb1-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev             libxcb-render0-dev libxcb-render-util0-dev libxcb-xkb-dev libxcb-icccm4-dev             libwayland-dev wayland-protocols libpixman-1-dev libdrm-dev libgbm-dev             libegl1-mesa-dev libgles2-mesa-dev libvulkan-dev xkb-data x11-xkb-utils             gcc-aarch64-linux-gnu
+
+      - name: Install LLVM 22
+        run: |
+          wget -q https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 22
+          sudo apt-get install -y clang-22 lld-22 llvm-22
+          echo "/usr/lib/llvm-22/bin" >> "$GITHUB_PATH"
+          echo "LLVM_CONFIG=/usr/lib/llvm-22/bin/llvm-config" >> "$GITHUB_ENV"
+
+      - name: Setup Rust for GEX
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.96.0
+          targets: wasm32-unknown-unknown
+
+      - name: Install Rust documentation for bundled license notices
+        run: rustup component add rust-docs
+
+      - name: Setup Emscripten 6.0.1
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$HOME/emsdk"
+          "$HOME/emsdk/emsdk" install 6.0.1
+          "$HOME/emsdk/emsdk" activate 6.0.1
+          echo "EMSDK=$HOME/emsdk" >> "$GITHUB_ENV"
+          echo "$HOME/emsdk/upstream/emscripten" >> "$GITHUB_PATH"
+          echo "$HOME/emsdk/upstream/bin" >> "$GITHUB_PATH"
+
+      - name: Checkout pinned GEX runtime
+        run: |
+          git clone --no-checkout https://github.com/BrowserPorts/stellite-gex.git /tmp/stellite-gex
+          git -C /tmp/stellite-gex checkout --detach 95fb079c93bb1e46835e5fa6d807db5d01dd1491
+          git -C /tmp/stellite-gex submodule update --init --recursive
+
+      - name: Cache GEX toolchains and build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            /home/runner/.cache/gex
+            /tmp/stellite-gex/target
+            /tmp/stellite-gex/runtime/node_modules
+          key: gex-arm64-${{ runner.os }}-${{ hashFiles('arm64-runtime.lock') }}
+          restore-keys: |
+            gex-arm64-${{ runner.os }}-
+
+      - name: Build GEX single-thread browser runtime
+        run: |
+          cd /tmp/stellite-gex
+          make page-sp JOBS=2 PAGE_FLAGS=--debug
+
+      - name: Package the ARM64 runtime for GitHub Pages
+        run: |
+          set -euxo pipefail
+          cd /tmp/stellite-gex
+          mkdir -p "$GITHUB_WORKSPACE/arm64/runtime" "$GITHUB_WORKSPACE/arm64/rootfs" "$GITHUB_WORKSPACE/arm64/guestfs/glibc"
+          GEX_KEEP_NAMES=1 ./runtime/build.sh --single "$GITHUB_WORKSPACE/arm64/runtime"
+          test -s runtime/files/out/rootfs/busybox.tar
+          test -s runtime/files/out/fs/libEGL.so.1
+          test -s runtime/files/out/fs/libGLESv2.so.2
+          cp runtime/files/out/rootfs/busybox.tar "$GITHUB_WORKSPACE/arm64/rootfs/busybox.tar"
+          cp runtime/files/out/fs/libEGL.so.1 runtime/files/out/fs/libGLESv2.so.2 "$GITHUB_WORKSPACE/arm64/guestfs/"
+          if [ -d runtime/files/out/fs/glibc ]; then
+            for f in libEGL.so.1 libGLESv2.so.2 libGL.so.1; do
+              if [ -f "runtime/files/out/fs/glibc/$f" ]; then cp "runtime/files/out/fs/glibc/$f" "$GITHUB_WORKSPACE/arm64/guestfs/glibc/"; fi
+            done
+          fi
+          printf 'GEX source: https://github.com/BrowserPorts/stellite-gex/tree/95fb079c93bb1e46835e5fa6d807db5d01dd1491\nCommit: 95fb079c93bb1e46835e5fa6d807db5d01dd1491\nLicense: AGPL-3.0-only\n' > "$GITHUB_WORKSPACE/arm64/runtime/SOURCE.txt"
+          du -sh "$GITHUB_WORKSPACE/arm64"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
