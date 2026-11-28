@@ -21,6 +21,31 @@ jobs:
         with:
           node-version: 22
 
+      - name: Organize GBA game files (one-time migration)
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_file="games/super-mario-advance-4-gba.zip"
+          target_file="games/gba/super-mario-advance-4-gba.zip"
+          if [[ -f "$source_file" ]]; then
+            mkdir -p games/gba
+            git mv "$source_file" "$target_file"
+            node <<'NODE'
+            const fs = require('node:fs');
+            const path = 'catalog.json';
+            const catalog = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const mario = (catalog.games || []).find(game => /Super Mario Advance 4/i.test(game.title || ''));
+            if (!mario) throw new Error('Mario Advance entry was not found in catalog.json');
+            mario.url = './games/gba/super-mario-advance-4-gba.zip';
+            fs.writeFileSync(path, JSON.stringify(catalog, null, 2) + '\\n');
+            NODE
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add catalog.json "$target_file"
+            git commit -m "Organize GBA game files"
+            git push origin HEAD:main
+          fi
+
       - name: Test site pages
         run: |
           node --test
