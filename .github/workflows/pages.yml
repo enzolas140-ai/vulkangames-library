@@ -76,6 +76,42 @@ jobs:
           restore-keys: |
             gex-arm64-${{ runner.os }}-
 
+      - name: Preload pinned musl toolchains from GitHub mirror
+        shell: bash
+        run: |
+          set -euo pipefail
+          DL_DIR="$HOME/.cache/gex/dl"
+          mkdir -p "$DL_DIR"
+
+          fetch_pinned() {
+            local name="$1"
+            local url="$2"
+            local sha="$3"
+            local dest="$DL_DIR/$name"
+
+            if [ -s "$dest" ] && echo "$sha  $dest" | sha256sum -c --status; then
+              echo "Using cached, verified $name"
+              return
+            fi
+
+            rm -f "$dest" "$dest.tmp"
+            echo "Downloading verified mirror asset: $name"
+            curl --fail --location --retry 5 --retry-all-errors \
+              --retry-delay 3 --connect-timeout 20 --max-time 900 \
+              --output "$dest.tmp" "$url"
+            echo "$sha  $dest.tmp" | sha256sum -c -
+            mv "$dest.tmp" "$dest"
+          }
+
+          # These GitHub Release assets are the musl.cc mirror; hashes match
+          # the pinned values in stellite-gex/toolchain/pins.
+          fetch_pinned "aarch64-linux-musl-cross.tgz" \
+            "https://github.com/musl-cc/musl.cc/releases/download/v0.0.1/aarch64-linux-musl-cross.tgz" \
+            "c909817856d6ceda86aa510894fa3527eac7989f0ef6e87b5721c58737a06c38"
+          fetch_pinned "x86_64-linux-musl-cross.tgz" \
+            "https://github.com/musl-cc/musl.cc/releases/download/v0.0.1/x86_64-linux-musl-cross.tgz" \
+            "c5d410d9f82a4f24c549fe5d24f988f85b2679b452413a9f7e5f7b956f2fe7ea"
+
       - name: Build GEX single-thread browser runtime
         run: |
           cd /tmp/stellite-gex
