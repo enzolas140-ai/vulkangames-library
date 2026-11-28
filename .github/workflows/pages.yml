@@ -47,6 +47,9 @@ jobs:
           toolchain: 1.96.0
           targets: wasm32-unknown-unknown
 
+      - name: Install Rust source for GEX kernel build
+        run: rustup component add rust-src --toolchain nightly
+
       - name: Install Rust documentation for bundled license notices
         run: rustup component add rust-docs
 
