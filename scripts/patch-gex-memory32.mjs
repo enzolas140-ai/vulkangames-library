@@ -3,8 +3,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const root = '/tmp/stellite-gex';
 const kmemPath = root + '/crates/gex-kmem/src/lib.rs';
 const buildPath = root + '/hosts/kernel/build.sh';
+const glPath = root + '/guest/gl/gexgl.c';
 let kmem = readFileSync(kmemPath, 'utf8');
 let build = readFileSync(buildPath, 'utf8');
+let gl = readFileSync(glPath, 'utf8');
 
 function replaceBetween(source, start, end, replacement, label) {
   const a = source.indexOf(start);
@@ -117,9 +119,24 @@ node hosts/kernel/add-memory.mjs "$OUT" runtime/files/out/gex/gex_kernel$INFIX.p
 if (!build.includes(oldBuild)) throw new Error('GEX patch anchor not found: remove process64 imports');
 build = build.replace(oldBuild, newBuild);
 
+// Fix the pinned guest GL source's duplicate thread-local context declaration.
+const firstContextDecl = 'static GEXGL_TLS unsigned egl_wire_context;';
+const laterContextBlock = '#define GEXGL_MAX_CONTEXTS 16\\nstruct gexgl_context_state {';
+const duplicateContextDecl = 'static GEXGL_TLS unsigned egl_wire_context = GEXGL_MAX_CONTEXTS; /* this thread\\'s; none */';
+if (!gl.includes(firstContextDecl) || !gl.includes(laterContextBlock) || !gl.includes(duplicateContextDecl)) {
+  throw new Error('GEX GL patch anchor not found: egl_wire_context declarations');
+}
+gl = gl.replace(firstContextDecl, '#define GEXGL_MAX_CONTEXTS 16\\nstatic GEXGL_TLS unsigned egl_wire_context = GEXGL_MAX_CONTEXTS;');
+gl = gl.replace(laterContextBlock, 'struct gexgl_context_state {');
+gl = gl.replace(duplicateContextDecl, '/* egl_wire_context is defined above with its no-context sentinel. */');
+if ((gl.match(/static GEXGL_TLS unsigned egl_wire_context/g) || []).length !== 1) {
+  throw new Error('GEX GL patch did not leave exactly one egl_wire_context definition');
+}
+
 if (/memory\.copy [^\n]*, 2|memory\.copy 2,/.test(kmem) || /memory\.fill 2|memory\.size 2/.test(kmem)) {
   throw new Error('GEX patch left a memory64 instruction in gex-kmem');
 }
 writeFileSync(kmemPath, kmem);
 writeFileSync(buildPath, build);
-console.log('Applied GEX wasm32-only kernel memory patch; memory64 guest address spaces are intentionally disabled.');
+writeFileSync(glPath, gl);
+console.log('Applied GEX wasm32-only memory patch and egl_wire_context duplicate-definition fix.');
