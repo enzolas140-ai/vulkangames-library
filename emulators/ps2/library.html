@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131c"><title>VulkanGames — Biblioteca PS2</title>
+<style>
+:root{color-scheme:dark;--line:#482431;--muted:#b6b0ba;--accent:#c72e45;--text:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#3b1b27 0,#0b0d12 58%);color:var(--text);font:16px/1.5 system-ui,Segoe UI,sans-serif;min-height:100vh}
+header{padding:24px max(18px,calc((100% - 1100px)/2));border-bottom:1px solid var(--line);background:#0b0d12ed}.brand{font-weight:950;letter-spacing:.04em;font-size:clamp(26px,5vw,40px)}.brand span{color:var(--accent)}header p,.muted{color:var(--muted)}
+nav{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}nav a,.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid #60303d;border-radius:8px;background:#211820;color:var(--text);text-decoration:none;font-weight:750}
+main{max-width:1100px;margin:26px auto;padding:0 18px}.hero,.game{border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,#211820,#11141b);padding:18px}.hero h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px)}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0}.btn.primary{background:var(--accent);border-color:var(--accent)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}.game h2{font-size:16px;margin:0 0 8px;overflow-wrap:anywhere}.game p{font-size:13px;color:var(--muted);margin:6px 0 14px}.actions{display:flex;gap:8px;flex-wrap:wrap}.status{margin:16px 0;color:var(--muted)}.notice{margin-top:18px;padding:14px;border:1px solid #59432e;background:#261d16;border-radius:12px;color:#ebc9a9;font-size:14px}footer{max-width:1100px;margin:30px auto;padding:0 18px 28px;color:var(--muted);font-size:13px}
+@media(max-width:600px){main{padding:0 12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.game{padding:12px}.actions a{width:100%;font-size:13px}}
+</style></head>
+<body>
+<header><div class="brand">VULKAN<span>GAMES</span> <small style="font-size:14px;color:#a8b2c5">ARCADE</small></div><p>Biblioteca PlayStation 2 · armazenamento privado</p><nav><a href="../../">Jogos</a><a href="../">Emuladores</a><a href="./">Emulador PS2</a></nav></header>
+<main>
+<section class="hero"><h1>Biblioteca PlayStation 2</h1><div class="muted">Os arquivos são listados diretamente do bucket privado RomsVulkanGames. Coloque seus jogos na pasta <b>ps2/</b> no Backblaze B2 para aparecerem aqui.</div><div class="toolbar"><button class="btn primary" id="reload" type="button">Atualizar lista</button><span class="muted" id="count"></span></div></section>
+<div id="status" class="status" role="status">Conectando ao armazenamento…</div><section id="games" class="grid"></section>
+<div class="notice"><b>Como jogar:</b> baixe o arquivo do jogo, abra o emulador PS2 e selecione a imagem de disco no próprio emulador. A BIOS deve ser fornecida por você, extraída do seu console. Esta página não hospeda BIOS.</div>
+</main><footer>VulkanGames · Backblaze B2 privado · Use somente jogos e arquivos que você tem direito de utilizar.</footer>
+<script>
+(function(){
+ const API="https://vulkangames-roms.enzolas140.workers.dev";
+ const $=id=>document.getElementById(id);
+ const fmt=n=>{if(!Number.isFinite(Number(n)))return "";let v=Number(n);return v>=1073741824?(v/1073741824).toFixed(2)+" GB":v>=1048576?(v/1048576).toFixed(1)+" MB":(v/1024).toFixed(0)+" KB";};
+ function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+ async function load(){
+  $("status").textContent="Buscando arquivos na pasta ps2/…";$("games").replaceChildren();$("count").textContent="";
+  try{
+   const res=await fetch(API+"/api/ps2",{cache:"no-store"});
+   if(!res.ok)throw new Error("Gateway HTTP "+res.status);
+   const data=await res.json(), files=(data.files||[]).filter(f=>/\.(iso|chd|cso|bin|cue|pbp|isz)$/i.test(f.name));
+   $("count").textContent=files.length+" jogo(s)";
+   if(!files.length){$("status").textContent="Nenhum jogo encontrado ainda. Envie arquivos ISO/CHD para a pasta ps2/ do bucket RomsVulkanGames.";return;}
+   $("status").textContent="Jogos encontrados no armazenamento privado:";
+   for(const f of files){
+    const card=document.createElement("article");card.className="game";
+    const title=f.name.replace(/\.[^.]+$/,"");
+    const download=API+"/file/"+f.key.split("/").map(encodeURIComponent).join("/");
+    card.innerHTML='<h2>'+esc(title)+'</h2><p>'+esc(f.name)+' · '+esc(fmt(f.size))+'</p><div class="actions"><a class="btn primary" href="'+esc(download)+'" download>Baixar jogo</a><a class="btn" href="./">Abrir emulador</a></div>';
+    $("games").append(card);
+   }
+  }catch(e){$("status").textContent="Não foi possível carregar a lista: "+e.message+". Verifique as permissões listFiles da chave B2 e tente novamente.";}
+ }
+ $("reload").addEventListener("click",load);load();
+})();
+</script></body></html>
